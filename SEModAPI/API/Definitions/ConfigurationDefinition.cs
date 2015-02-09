@@ -1,12 +1,5 @@
 ﻿using System;
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using SEModAPI.Support;
-using System.Xml;
-using System.IO;
 
 namespace SEModAPI.API.Definitions
 {
@@ -20,10 +13,6 @@ namespace SEModAPI.API.Definitions
 
 		#region "Constructors and Initializers"
 
-		public ConfigurationDefinition()
-		{
-
-		}
 
 		#endregion
 
@@ -47,6 +36,7 @@ namespace SEModAPI.API.Definitions
 			}
 		}
 
+		/*
 		public float MediumCubeSize
 		{
 			get { return m_baseDefinition.CubeSizes.Medium; }
@@ -58,6 +48,7 @@ namespace SEModAPI.API.Definitions
 				Changed = true;
 			}
 		}
+		*/
 
 		public float SmallCubeSize
 		{
@@ -93,6 +84,7 @@ namespace SEModAPI.API.Definitions
 			}
 		}
 
+		/*
 		public string MediumDynamic
 		{
 			get { return m_baseDefinition.BaseBlockPrefabs.MediumDynamic; }
@@ -103,7 +95,9 @@ namespace SEModAPI.API.Definitions
 				Changed = true;
 			}
 		}
+		*/
 
+		/*
 		public string MediumStatic
 		{
 			get { return m_baseDefinition.BaseBlockPrefabs.MediumStatic; }
@@ -114,6 +108,7 @@ namespace SEModAPI.API.Definitions
 				Changed = true;
 			}
 		}
+		*/
 
 		public string LargeDynamic
 		{

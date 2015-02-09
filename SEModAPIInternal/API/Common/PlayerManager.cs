@@ -41,7 +41,7 @@ namespace SEModAPIInternal.API.Common
             {
                 name = (string)BaseObject.GetEntityFieldValue(source, "1FB9EB403295AA9F17329DAB808AACC8");
                 model = (string)BaseObject.GetEntityFieldValue(source, "98D5685D557109787E8C5BC033A1863F");
-                playerId = (long)BaseObject.GetEntityFieldValue(source, "FAD55A6A12E7F83E9FF832AA1BBD1830");
+				playerId = (long)BaseObject.GetEntityFieldValue(source, "AFB0FA8889365232B6E34B6F527B304A");
                 entityId = 0;
             }
         }
@@ -146,6 +146,8 @@ namespace SEModAPIInternal.API.Common
 		public static string PlayerMapSessionCameraField = "B475119E5256E23CEA219027068578E6";
 		public static string PlayerMapCameraDataClass = "1363E4575A0EAB9C07E1CC9EE70B0711";
 		public static string PlayerMapGetCameraDataField = "3A4EC5D20D8A9F113F78FC05516F0D8B";
+
+		public static string PlayerMapForceDisplaySpawnMenu = "BFF5EBE381CB1EE971FAE0A3DECAB00F";
 
         // SteamIdToPlayerId? public long 664B2E5CBB958C38E24656118771D345(ulong u00336ADF4D8C43635669729322024D2AD33, int u0032FA8049E153F637DEA99600B785ECCA0 = 0)
 
