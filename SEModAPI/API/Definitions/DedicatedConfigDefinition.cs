@@ -904,11 +904,11 @@ namespace SEModAPI.API.Definitions
 		/// </summary>
         public bool DestructibleBlocks
 		{
-            get { return m_definition.SessionSettings.DestructibleBlocks; }
+            get { return _definition.SessionSettings.DestructibleBlocks; }
 			set
 			{
-                if (m_definition.SessionSettings.DestructibleBlocks == value) return;
-                m_definition.SessionSettings.DestructibleBlocks = value;
+                if (_definition.SessionSettings.DestructibleBlocks == value) return;
+                _definition.SessionSettings.DestructibleBlocks = value;
 			}
 		}
 
