@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -8,6 +9,7 @@ using SEModAPIInternal.API.Entity;
 using SEModAPIInternal.Support;
 using VRage.Common.Utils;
 using Sandbox.ModAPI;
+using Mono.Cecil.Cil;
 
 namespace SEModAPIInternal.API.Common
 {
@@ -98,17 +100,53 @@ namespace SEModAPIInternal.API.Common
 			m_gatewayInitialzed = false;
 			m_gameThread = null;
 
-			string assemblyPath = Path.Combine( AppDomain.CurrentDomain.BaseDirectory, "Sandbox.Game.dll" );
-			m_assembly = Assembly.UnsafeLoadFrom( assemblyPath );
+            string assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sandbox.Game.dll");
 
-			m_lastProfilingOutput = DateTime.Now;
-			m_countQueuedActions = 0;
-			m_averageQueuedActions = 0;
+            //add hook
 
-			Console.WriteLine( "Finished loading SandboxGameAssemblyWrapper" );
-		}
+            var sandboxasm = Mono.Cecil.AssemblyDefinition.ReadAssembly(assemblyPath);
+
+            var MyProjectileDef = sandboxasm.Modules
+                .SelectMany(m => m.Types)
+                .Where(t => t.Name == "MyProjectile").First();
+
+            var DoDamageDef = MyProjectileDef.Methods.FirstOrDefault(f => f.Name == "DoDamage");
+            var work = DoDamageDef.Body.GetILProcessor();
+
+            work.InsertBefore(DoDamageDef.Body.Instructions.First(), work.Create(OpCodes.Call,
+             sandboxasm.MainModule.Import(typeof(SandboxGameAssemblyWrapper).GetMethod("MyProjectileDoDamage"))));
+            work.InsertAfter(DoDamageDef.Body.Instructions.First(), work.Create(OpCodes.Brfalse_S, DoDamageDef.Body.Instructions[3]));
+
+            work.InsertBefore(DoDamageDef.Body.Instructions.First(), work.Create(OpCodes.Ldarg_2));
+            work.InsertBefore(DoDamageDef.Body.Instructions.First(), work.Create(OpCodes.Ldarg_1));
+
+
+            MemoryStream sandboxStream = new MemoryStream();
+            sandboxasm.Write(sandboxStream);
+
+
+
+
+
+            //m_assembly = Assembly.UnsafeLoadFrom( assemblyPath );
+
+            m_assembly = Assembly.Load(sandboxStream.ToArray());
+
+            m_lastProfilingOutput = DateTime.Now;
+            m_countQueuedActions = 0;
+            m_averageQueuedActions = 0;
+
+            Console.WriteLine("Finished loading SandboxGameAssemblyWrapper");
+        }
 
 		#endregion "Constructors and Initializers"
+
+        public static bool MyProjectileDoDamage(Sandbox.Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync)
+        {
+
+          
+            return true;
+        }
 
 		#region "Properties"
 
