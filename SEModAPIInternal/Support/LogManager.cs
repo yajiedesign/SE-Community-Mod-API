@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading;
 using SEModAPIInternal.API.Common;
 using SEModAPIInternal.API.Entity;
-using SysUtils.Utils;
 using VRage.Common.Utils;
 using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace SEModAPIInternal.Support
 {

@@ -248,7 +248,7 @@ namespace SEModAPIInternal.API.Utility
 		public static Vector3D GenerateRandomBorderPosition( Vector3 borderStart, Vector3 borderEnd )
 		{
 			BoundingBoxD box = new BoundingBoxD( borderStart, borderEnd );
-			Vector3D result = MyVRageUtils.GetRandomBorderPosition( ref box );
+			Vector3D result = VRage.Utils.MyUtils.GetRandomBorderPosition( ref box );
 
 			return result;
 		}
