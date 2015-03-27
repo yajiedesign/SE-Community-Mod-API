@@ -1,8 +1,8 @@
-using System.ComponentModel;
-using Sandbox.Common.ObjectBuilders.Definitions;
-
 namespace SEModAPI.API.Definitions.CubeBlocks
 {
+	using System.ComponentModel;
+	using Sandbox.Common.ObjectBuilders.Definitions;
+
 	public abstract class BlockDefinition : DefinitionOverLayer
 	{
 		#region "Constructors and Initializers"
@@ -61,12 +61,12 @@ namespace SEModAPI.API.Definitions.CubeBlocks
 
 		/// <summary>
 		/// Get or Set the current CubeBlock DisassembleRatio
-		/// The value is a multiplyer of BuildTime
+		/// The value is a multiplier of <see cref="BuildTime"/>
 		/// [Disassemble time] = BuildTime * DisassembleRatio
 		/// </summary>
 		[Browsable(true)]
 		[ReadOnly(false)]
-		[Description("Get or Set the current CubeBlock DisassembleRatio \r\n The value is a multiplyer of BuildTime \r\n [Disassemble time] = BuildTime * DisassembleRatio")]
+		[Description("Get or Set the current CubeBlock DisassembleRatio \r\n The value is a multiplier of BuildTime \r\n [Disassemble time] = BuildTime * DisassembleRatio")]
 		public float DisassembleRatio
 		{
 			get { return GetSubTypeDefinition().DisassembleRatio; }

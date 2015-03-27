@@ -1,11 +1,10 @@
-using System;
-using System.ComponentModel;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity
 {
+	using System;
+	using System.ComponentModel;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
 	public class PowerReceiver
 	{
 		#region "Attributes"
@@ -127,7 +126,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -150,7 +149,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

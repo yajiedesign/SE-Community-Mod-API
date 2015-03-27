@@ -1,15 +1,13 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-
-using Sandbox.Common.ObjectBuilders;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 {
-	[DataContract( Name = "MeteorProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
+	[DataContract]
 	public class Meteor : BaseEntity
 	{
 		#region "Attributes"
@@ -46,12 +44,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 		[ReadOnly( true )]
 		new internal static Type InternalType
 		{
-			get
-			{
-				if ( m_internalType == null )
-					m_internalType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( MeteorNamespace, MeteorClass );
-				return m_internalType;
-			}
+			get { return m_internalType ?? ( m_internalType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( MeteorNamespace, MeteorClass ) ); }
 		}
 
 		[DataMember]
@@ -129,7 +122,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -141,7 +134,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

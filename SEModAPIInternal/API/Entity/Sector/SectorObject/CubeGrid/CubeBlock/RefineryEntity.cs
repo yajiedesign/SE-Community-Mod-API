@@ -1,10 +1,10 @@
-using System;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "RefineryEntityProxy" )]
+	using System;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+
+	[DataContract]
 	public class RefineryEntity : ProductionBlockEntity
 	{
 		#region "Attributes"

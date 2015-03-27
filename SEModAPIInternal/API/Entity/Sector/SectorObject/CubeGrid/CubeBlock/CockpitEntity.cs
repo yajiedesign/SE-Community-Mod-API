@@ -1,19 +1,19 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "CockpitEntityProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
+	[DataContract]
 	public class CockpitEntity : ShipControllerEntity
 	{
 		#region "Attributes"
 
-		private bool m_weaponStatus;
-		private CharacterEntity m_pilot;
+		private bool _weaponStatus;
+		private CharacterEntity _pilot;
 
 		public static string CockpitEntityNamespace = "";
 		public static string CockpitEntityClass = "=a46pBNaH1dvgjWHyn2Az7HnXm0=";
@@ -57,10 +57,6 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 
 				return false;
 			}
-			private set
-			{
-				//Do nothing!
-			}
 		}
 
 		[IgnoreDataMember]
@@ -77,41 +73,41 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 				if ( backingPilot == null )
 					return null;
 
-				if ( m_pilot == null )
+				if ( _pilot == null )
 				{
 					try
 					{
 						MyObjectBuilder_Character objectBuilder = (MyObjectBuilder_Character)BaseEntity.GetObjectBuilder( backingPilot );
-						m_pilot = new CharacterEntity( objectBuilder, backingPilot );
+						_pilot = new CharacterEntity( objectBuilder, backingPilot );
 					}
-					catch ( Exception ex )
+					catch ( InvalidCastException ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
-				if ( m_pilot != null )
+				if ( _pilot != null )
 				{
 					try
 					{
-						if ( m_pilot.BackingObject != backingPilot )
+						if ( _pilot.BackingObject != backingPilot )
 						{
 							MyObjectBuilder_Character objectBuilder = (MyObjectBuilder_Character)BaseEntity.GetObjectBuilder( backingPilot );
-							m_pilot.BackingObject = backingPilot;
-							m_pilot.ObjectBuilder = objectBuilder;
+							_pilot.BackingObject = backingPilot;
+							_pilot.ObjectBuilder = objectBuilder;
 						}
 					}
-					catch ( Exception ex )
+					catch ( InvalidCastException ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
-				return m_pilot;
+				return _pilot;
 			}
 			set
 			{
-				m_pilot = value;
+				_pilot = value;
 				Changed = true;
 
 				if ( BackingObject != null && ActualObject != null )
@@ -133,18 +129,18 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 				bool result = true;
 				Type type = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( CockpitEntityNamespace, CockpitEntityClass );
 				if ( type == null )
-					throw new Exception( "Could not find type for CockpitEntity" );
+					throw new TypeLoadException( "Could not find type for CockpitEntity" );
 
 				//result &= BaseEntity.HasMethod(type, CockpitGetPilotEntityMethod);
 
-				result &= BaseEntity.HasMethod( type, CockpitSetPilotEntityMethod );
-				result &= BaseEntity.HasField( type, CockpitGetPilotEntityField );
+				result &= HasMethod( type, CockpitSetPilotEntityMethod );
+				result &= HasField( type, CockpitGetPilotEntityField );
 
 				return result;
 			}
-			catch ( Exception ex )
+			catch ( TypeLoadException ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -158,18 +154,18 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 
 		protected void InternalUpdatePilotEntity( )
 		{
-			if ( m_pilot == null || m_pilot.BackingObject == null )
+			if ( _pilot == null || _pilot.BackingObject == null )
 				return;
 
-			BaseObject.InvokeEntityMethod( ActualObject, CockpitSetPilotEntityMethod, new object[ ] { m_pilot.BackingObject, Type.Missing, Type.Missing } );
+			InvokeEntityMethod( ActualObject, CockpitSetPilotEntityMethod, new [ ] { _pilot.BackingObject, Type.Missing, Type.Missing } );
 		}
 
 		public void FireWeapons( )
 		{
-			if ( m_weaponStatus )
+			if ( _weaponStatus )
 				return;
 
-			m_weaponStatus = true;
+			_weaponStatus = true;
 
 			Action action = InternalFireWeapons;
 			SandboxGameAssemblyWrapper.Instance.EnqueueMainGameAction( action );
@@ -177,10 +173,10 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 
 		public void StopWeapons( )
 		{
-			if ( !m_weaponStatus )
+			if ( !_weaponStatus )
 				return;
 
-			m_weaponStatus = false;
+			_weaponStatus = false;
 
 			Action action = InternalStopWeapons;
 			SandboxGameAssemblyWrapper.Instance.EnqueueMainGameAction( action );

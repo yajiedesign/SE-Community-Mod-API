@@ -1,11 +1,11 @@
-using System;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 {
+	using System;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
+	using SEModAPIInternal.Support;
+
 	public class CubeGridThrusterManager
 	{
 		#region "Attributes"
@@ -73,7 +73,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}

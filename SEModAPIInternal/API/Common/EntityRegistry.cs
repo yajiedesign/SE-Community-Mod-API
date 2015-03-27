@@ -1,10 +1,9 @@
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
-
-using SEModAPIInternal.API.Entity.Sector.SectorObject;
-
 namespace SEModAPIInternal.API.Common
 {
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Voxels;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject;
+
 	public class EntityRegistry : GameObjectRegistry
 	{
 		#region "Attributes"
@@ -30,13 +29,7 @@ namespace SEModAPIInternal.API.Common
 
 		new public static EntityRegistry Instance
 		{
-			get
-			{
-				if ( m_instance == null )
-					m_instance = new EntityRegistry( );
-
-				return m_instance;
-			}
+			get { return m_instance ?? ( m_instance = new EntityRegistry( ) ); }
 		}
 
 		#endregion "Properties"

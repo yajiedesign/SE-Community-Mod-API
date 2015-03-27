@@ -1,25 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Xml;
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
-using Sandbox.Definitions;
-using SEModAPI.API;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity.Sector.SectorObject;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.API.Utility;
-using SEModAPIInternal.Support;
-using VRage;
-
 namespace SEModAPIInternal.API.Entity
 {
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel;
+	using System.IO;
+	using System.Reflection;
+	using System.Runtime.Serialization;
+	using System.Xml;
+	using Microsoft.Xml.Serialization.GeneratedAssembly;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Definitions;
+	using Sandbox.Common.ObjectBuilders.Serializer;
+	using Sandbox.Definitions;
+	using SEModAPI.API;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.API.Utility;
+	using SEModAPIInternal.Support;
+	using VRage;
+
 	[DataContract( Name = "BaseObjectProxy" )]
 	[KnownType( typeof( BaseEntity ) )]
 	[KnownType( typeof( CharacterEntity ) )]
@@ -272,7 +272,7 @@ namespace SEModAPIInternal.API.Entity
 				if ( field == null )
 				{
 					if ( SandboxGameAssemblyWrapper.IsDebugging )
-						LogManager.ErrorLog.WriteLineAndConsole( "Failed to find field '" + fieldName + "' in type '" + objectType.FullName + "'" );
+						ApplicationLog.BaseLog.Error( "Failed to find field '" + fieldName + "' in type '" + objectType.FullName + "'" );
 					return false;
 				}
 				return true;
@@ -280,8 +280,8 @@ namespace SEModAPIInternal.API.Entity
 			catch ( Exception ex )
 			{
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLineAndConsole( "Failed to find field '" + fieldName + "' in type '" + objectType.FullName + "': " + ex.Message );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( "Failed to find field '" + fieldName + "' in type '" + objectType.FullName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -308,7 +308,7 @@ namespace SEModAPIInternal.API.Entity
 					if ( method == null )
 					{
 						if ( SandboxGameAssemblyWrapper.IsDebugging )
-							LogManager.ErrorLog.WriteLineAndConsole( "Failed to find method '" + methodName + "' in type '" + objectType.FullName + "'" );
+							ApplicationLog.BaseLog.Error( "Failed to find method '" + methodName + "' in type '" + objectType.FullName + "'" );
 						return false;
 					}
 				}
@@ -322,22 +322,22 @@ namespace SEModAPIInternal.API.Entity
 					if ( method == null )
 					{
 						if ( SandboxGameAssemblyWrapper.IsDebugging )
-							LogManager.ErrorLog.WriteLineAndConsole( "Failed to find method '" + methodName + "' in type '" + objectType.FullName + "'" );
+							ApplicationLog.BaseLog.Error( "Failed to find method '" + methodName + "' in type '" + objectType.FullName + "'" );
 						return false;
 					}
 				}
 
 				return true;
 			}
-			catch (AmbiguousMatchException aex)
+			catch ( AmbiguousMatchException aex )
 			{
 				return true;
 			}
 			catch ( Exception ex )
 			{
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLineAndConsole( "Failed to find method '" + methodName + "' in type '" + objectType.FullName + "': " + ex.Message );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( "Failed to find method '" + methodName + "' in type '" + objectType.FullName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -356,7 +356,7 @@ namespace SEModAPIInternal.API.Entity
 				if ( property == null )
 				{
 					if ( SandboxGameAssemblyWrapper.IsDebugging )
-						LogManager.ErrorLog.WriteLineAndConsole( "Failed to find property '" + propertyName + "' in type '" + objectType.FullName + "'" );
+						ApplicationLog.BaseLog.Error( "Failed to find property '" + propertyName + "' in type '" + objectType.FullName + "'" );
 					return false;
 				}
 				return true;
@@ -364,28 +364,28 @@ namespace SEModAPIInternal.API.Entity
 			catch ( Exception ex )
 			{
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLineAndConsole( "Failed to find property '" + propertyName + "' in type '" + objectType.FullName + "': " + ex.Message );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( "Failed to find property '" + propertyName + "' in type '" + objectType.FullName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
 
-		public static bool HasNestedType(Type objectType, string nestedTypeName)
+		public static bool HasNestedType( Type objectType, string nestedTypeName )
 		{
 			try
 			{
-				if(string.IsNullOrEmpty(nestedTypeName))
+				if ( string.IsNullOrEmpty( nestedTypeName ) )
 					return false;
 
-				Type type = objectType.GetNestedType(nestedTypeName, BindingFlags.Public | BindingFlags.NonPublic);
+				Type type = objectType.GetNestedType( nestedTypeName, BindingFlags.Public | BindingFlags.NonPublic );
 				return true;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				if (SandboxGameAssemblyWrapper.IsDebugging)
-					LogManager.ErrorLog.WriteLineAndConsole("Failed to find nested type '" + nestedTypeName + "' in type '" + objectType.FullName + "': " + ex.Message);
+				if ( SandboxGameAssemblyWrapper.IsDebugging )
+					ApplicationLog.BaseLog.Error( "Failed to find nested type '" + nestedTypeName + "' in type '" + objectType.FullName + "': " + ex.Message );
 
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 
 			}
@@ -402,10 +402,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get static field '" + fieldName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to get static field '" + fieldName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -432,10 +432,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get entity field '" + fieldName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to get entity field '" + fieldName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -466,10 +466,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get static method '" + methodName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to get static method '" + methodName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -503,10 +503,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get static method '" + methodName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to get static method '" + methodName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -539,10 +539,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get entity method '" + methodName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( "Failed to get entity method '" + methodName + "': " + ex.Message );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -578,10 +578,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get entity method '" + methodName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( "Failed to get entity method '" + methodName + "': " + ex.Message );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -598,7 +598,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -614,7 +614,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -630,7 +630,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -646,7 +646,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -668,10 +668,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to invoke static method '" + methodName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( "Failed to invoke static method '" + methodName + "': " + ex.Message );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -699,12 +699,12 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to invoke entity method '" + methodName + "' on type '" + gameEntity.GetType( ).FullName + "': " + ex.Message );
+				ApplicationLog.BaseLog.Error( "Failed to invoke entity method '" + methodName + "' on type '" + gameEntity.GetType( ).FullName + "': " + ex.Message );
 
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
 
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -721,10 +721,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get entity property '" + propertyName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to get entity property '" + propertyName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -742,10 +742,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to get entity property value '" + propertyName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to get entity property value '" + propertyName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -762,10 +762,10 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to set entity property value '" + propertyName + "'" );
+				ApplicationLog.BaseLog.Error( "Failed to set entity property value '" + propertyName + "'" );
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					LogManager.ErrorLog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 				return;
 			}
 		}
@@ -1110,13 +1110,13 @@ namespace SEModAPIInternal.API.Entity
 					if ( timeSinceLastProfilingOutput.TotalSeconds > 30 )
 					{
 						m_lastProfilingOutput = DateTime.Now;
-						LogManager.APILog.WriteLine( "ObjectManager - Average of " + Math.Round( m_averageRefreshDataTime, 2 ).ToString( ) + "ms to refresh API data" );
+						ApplicationLog.BaseLog.Debug( "ObjectManager - Average of " + Math.Round( m_averageRefreshDataTime, 2 ).ToString( ) + "ms to refresh API data" );
 					}
 				}
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -1159,7 +1159,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				if ( m_rawDataHashSetResourceLock.Owned )
 					m_rawDataHashSetResourceLock.ReleaseExclusive( );
 			}
@@ -1199,7 +1199,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				if ( m_rawDataListResourceLock.Owned )
 					m_rawDataListResourceLock.ReleaseExclusive( );
 			}
@@ -1238,7 +1238,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				throw new GameInstallationInfoException( GameInstallationInfoExceptionState.ConfigFileCorrupted, filePath );
 			}
 
@@ -1400,7 +1400,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				if ( m_resourceLock.Owned )
 					m_resourceLock.ReleaseShared( );
 				return new List<T>( );

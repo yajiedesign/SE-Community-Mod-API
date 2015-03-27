@@ -1,13 +1,13 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "BeaconEntityProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
+	[DataContract]
 	public class BeaconEntity : FunctionalBlockEntity
 	{
 		#region "Attributes"
@@ -59,6 +59,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 
 		[DataMember]
 		[Category( "Beacon" )]
+		[DisplayName("Broadcast Radius")]
 		public float BroadcastRadius
 		{
 			get
@@ -109,7 +110,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -125,7 +126,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}

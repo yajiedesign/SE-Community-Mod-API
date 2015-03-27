@@ -1,18 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
-using Sandbox.Definitions;
-
-using SEModAPIInternal.API.Entity;
-using SEModAPIInternal.Support;
-
-using VRage;
-
 namespace SEServerExtender
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Windows.Forms;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Serializer;
+	using Sandbox.Definitions;
+	using SEModAPIInternal.API.Entity;
+	using SEModAPIInternal.Support;
+	using VRage;
 	using VRage.Collections;
 
 	public partial class InventoryItemDialog : Form
@@ -94,7 +90,7 @@ namespace SEServerExtender
 				}
 				catch (Exception ex)
 				{
-					LogManager.ErrorLog.WriteLine(ex);
+					ApplicationLog.BaseLog.Error(ex);
 					return 0;
 				}
 			}
@@ -124,7 +120,7 @@ namespace SEServerExtender
 			}
 			catch (Exception ex)
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error(ex);
 			}
 		}
 

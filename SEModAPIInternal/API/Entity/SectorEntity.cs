@@ -1,18 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity.Sector;
-using SEModAPIInternal.API.Entity.Sector.SectorObject;
-using SEModAPIInternal.API.Utility;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity
 {
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel;
+	using System.IO;
+	using Microsoft.Xml.Serialization.GeneratedAssembly;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Voxels;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity.Sector;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject;
+	using SEModAPIInternal.API.Utility;
+	using SEModAPIInternal.Support;
+	using VRageMath;
+
 	public class SectorEntity : BaseObject
 	{
 		#region "Attributes"
@@ -133,7 +134,7 @@ namespace SEModAPIInternal.API.Entity
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 				return baseSector;
 			}
@@ -144,7 +145,7 @@ namespace SEModAPIInternal.API.Entity
 		}
 
 		[Category( "Sector" )]
-		public VRageMath.Vector3I Position
+		public Vector3I Position
 		{
 			get { return ObjectBuilder.Position; }
 		}
@@ -344,7 +345,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -383,7 +384,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -420,7 +421,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				if ( m_rawDataHashSetResourceLock.Owned )
 					m_rawDataHashSetResourceLock.ReleaseExclusive( );
 			}
@@ -477,7 +478,7 @@ namespace SEModAPIInternal.API.Entity
 					}
 					catch ( Exception ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
@@ -491,13 +492,13 @@ namespace SEModAPIInternal.API.Entity
 					}
 					catch ( Exception ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -511,7 +512,7 @@ namespace SEModAPIInternal.API.Entity
 				}
 
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					Console.WriteLine( entity.GetType( ).Name + " '" + entity.Name + "' is being added ..." );
+					ApplicationLog.BaseLog.Debug( entity.GetType( ).Name + " '" + entity.Name + "' is being added ..." );
 
 				m_addEntityQueue.Enqueue( entity );
 
@@ -520,7 +521,7 @@ namespace SEModAPIInternal.API.Entity
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -534,7 +535,7 @@ namespace SEModAPIInternal.API.Entity
 				BaseEntity entityToAdd = m_addEntityQueue.Dequeue( );
 
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
-					Console.WriteLine( entityToAdd.GetType( ).Name + " '" + entityToAdd.GetType( ).Name + "': Adding to scene ..." );
+					ApplicationLog.BaseLog.Debug( entityToAdd.GetType( ).Name + " '" + entityToAdd.GetType( ).Name + "': Adding to scene ..." );
 
 				//Create the backing object
 				Type entityType = entityToAdd.GetType( );
@@ -562,8 +563,8 @@ namespace SEModAPIInternal.API.Entity
 					}
 					catch ( Exception ex )
 					{
-						LogManager.APILog.WriteLineAndConsole( "Failed to broadcast new floating object" );
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( "Failed to broadcast new floating object" );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 				else
@@ -579,20 +580,20 @@ namespace SEModAPIInternal.API.Entity
 					}
 					catch ( Exception ex )
 					{
-						LogManager.APILog.WriteLineAndConsole( "Failed to broadcast new entity" );
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( "Failed to broadcast new entity" );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
 				if ( SandboxGameAssemblyWrapper.IsDebugging )
 				{
 					Type type = entityToAdd.GetType( );
-					Console.WriteLine( type.Name + " '" + entityToAdd.Name + "': Finished adding to scene" );
+					ApplicationLog.BaseLog.Debug( type.Name + " '" + entityToAdd.Name + "': Finished adding to scene" );
 				}
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

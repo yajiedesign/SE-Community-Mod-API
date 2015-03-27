@@ -1,55 +1,16 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
-using VRage;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	public struct ProductionQueueItem
-	{
-		public decimal Amount;
-		public SerializableDefinitionId Id;
-		public uint ItemId;
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.ComponentModel;
+	using System.Reflection;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
 
-		public ProductionQueueItem( decimal amount, SerializableDefinitionId id, uint itemId )
-		{
-			Amount = amount;
-			Id = id;
-			ItemId = itemId;
-		}
-
-		public ProductionQueueItem( MyObjectBuilder_ProductionBlock.QueueItem q )
-		{
-			Amount = (decimal)q.Amount;
-			Id = q.Id;
-			ItemId = q.ItemId.GetValueOrDefault( 0 );
-		}
-
-		public static implicit operator ProductionQueueItem( MyObjectBuilder_ProductionBlock.QueueItem q )
-		{
-			return new ProductionQueueItem( q );
-		}
-
-		public static implicit operator MyObjectBuilder_ProductionBlock.QueueItem( ProductionQueueItem q )
-		{
-			MyObjectBuilder_ProductionBlock.QueueItem item = new MyObjectBuilder_ProductionBlock.QueueItem( );
-			item.Amount = (MyFixedPoint)q.Amount;
-			item.Id = q.Id;
-			item.ItemId = q.ItemId;
-
-			return item;
-		}
-	}
-
-	[DataContract( Name = "ProductionBlockEntityProxy" )]
+	[DataContract]
 	public class ProductionBlockEntity : FunctionalBlockEntity
 	{
 		#region "Attributes"
@@ -220,7 +181,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -245,7 +206,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -262,7 +223,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -278,7 +239,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

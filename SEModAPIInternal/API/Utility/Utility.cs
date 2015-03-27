@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Entities;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.Support;
-
-using VRage.Common.Utils;
-using VRageMath;
-
 namespace SEModAPIInternal.API.Utility
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Reflection;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Game.Entities;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.Support;
+	using VRage.Utils;
+	using VRageMath;
+
 	public class UtilityFunctions
 	{
 		#region "Attributes"
@@ -37,7 +36,7 @@ namespace SEModAPIInternal.API.Utility
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -50,13 +49,13 @@ namespace SEModAPIInternal.API.Utility
 				Type[ ] genericArgs = rawType.GetGenericArguments( );
 				MethodInfo conversion = typeof( UtilityFunctions ).GetMethod( "ConvertEntityHashSet", BindingFlags.Public | BindingFlags.Static );
 				conversion = conversion.MakeGenericMethod( genericArgs[ 0 ] );
-				HashSet<Object> result = (HashSet<Object>)conversion.Invoke( null, new object[ ] { source } );
+				HashSet<Object> result = (HashSet<Object>)conversion.Invoke( null, new[ ] { source } );
 
 				return result;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return new HashSet<object>( );
 			}
 		}
@@ -69,13 +68,13 @@ namespace SEModAPIInternal.API.Utility
 				Type[ ] genericArgs = rawType.GetGenericArguments( );
 				MethodInfo conversion = typeof( UtilityFunctions ).GetMethod( "ConvertEntityList", BindingFlags.Public | BindingFlags.Static );
 				conversion = conversion.MakeGenericMethod( genericArgs[ 0 ] );
-				List<Object> result = (List<Object>)conversion.Invoke( null, new object[ ] { source } );
+				List<Object> result = (List<Object>)conversion.Invoke( null, new[ ] { source } );
 
 				return result;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return new List<object>( );
 			}
 		}
@@ -88,13 +87,13 @@ namespace SEModAPIInternal.API.Utility
 				Type[ ] genericArgs = rawType.GetGenericArguments( );
 				MethodInfo conversion = typeof( UtilityFunctions ).GetMethod( "ConvertEntityDictionary", BindingFlags.Public | BindingFlags.Static );
 				conversion = conversion.MakeGenericMethod( genericArgs );
-				Dictionary<T, Object> result = (Dictionary<T, Object>)conversion.Invoke( null, new object[ ] { source } );
+				Dictionary<T, Object> result = (Dictionary<T, Object>)conversion.Invoke( null, new[ ] { source } );
 
 				return result;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return new Dictionary<T, Object>( );
 			}
 		}
@@ -107,12 +106,12 @@ namespace SEModAPIInternal.API.Utility
 				Type[ ] genericArgs = rawType.GetGenericArguments( );
 				MethodInfo conversion = typeof( UtilityFunctions ).GetMethod( "ConvertEntityDictionaryReverse", BindingFlags.Public | BindingFlags.Static );
 				conversion = conversion.MakeGenericMethod( genericArgs );
-				Dictionary<Object, T> result = (Dictionary<Object, T>)conversion.Invoke( null, new object[ ] { source } );
+				Dictionary<Object, T> result = (Dictionary<Object, T>)conversion.Invoke( null, new[ ] { source } );
 				return result;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return new Dictionary<Object, T>( );
 			}
 		}
@@ -130,7 +129,7 @@ namespace SEModAPIInternal.API.Utility
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 
 			return dataSet;
@@ -149,45 +148,45 @@ namespace SEModAPIInternal.API.Utility
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 
 			return dataSet;
 		}
 
-		public static Dictionary<T, Object> ConvertEntityDictionary<T, U>( IEnumerable<KeyValuePair<T, U>> source )
+		public static Dictionary<T, Object> ConvertEntityDictionary<T, TU>( IEnumerable<KeyValuePair<T, TU>> source )
 		{
 			Dictionary<T, Object> dataSet = new Dictionary<T, Object>( );
 
 			try
 			{
-				foreach ( KeyValuePair<T, U> rawEntity in source )
+				foreach ( KeyValuePair<T, TU> rawEntity in source )
 				{
 					dataSet.Add( rawEntity.Key, rawEntity.Value );
 				}
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 
 			return dataSet;
 		}
 
-		public static Dictionary<Object, T> ConvertEntityDictionaryReverse<U, T>( IEnumerable<KeyValuePair<U, T>> source )
+		public static Dictionary<Object, TU1> ConvertEntityDictionaryReverse<T1, TU1>( IEnumerable<KeyValuePair<T1, TU1>> source )
 		{
-			Dictionary<Object, T> dataSet = new Dictionary<Object, T>( );
+			Dictionary<Object, TU1> dataSet = new Dictionary<Object, TU1>( );
 
 			try
 			{
-				foreach ( KeyValuePair<U, T> rawEntity in source )
+				foreach ( KeyValuePair<T1, TU1> rawEntity in source )
 				{
 					dataSet.Add( rawEntity.Key, rawEntity.Value );
 				}
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 
 			return dataSet;
@@ -199,13 +198,13 @@ namespace SEModAPIInternal.API.Utility
 			{
 				MethodInfo conversion = typeof( UtilityFunctions ).GetMethod( "CastObject", BindingFlags.Public | BindingFlags.Static );
 				conversion = conversion.MakeGenericMethod( newType );
-				Object result = conversion.Invoke( null, new object[ ] { source } );
+				Object result = conversion.Invoke( null, new[ ] { source } );
 
 				return result;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return source;
 			}
 		}
@@ -226,7 +225,7 @@ namespace SEModAPIInternal.API.Utility
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return source;
 			}
 		}
@@ -239,8 +238,7 @@ namespace SEModAPIInternal.API.Utility
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Failed to generate entity id" );
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( "Failed to generate entity id", ex );
 				return 0;
 			}
 		}
@@ -248,7 +246,7 @@ namespace SEModAPIInternal.API.Utility
 		public static Vector3D GenerateRandomBorderPosition( Vector3 borderStart, Vector3 borderEnd )
 		{
 			BoundingBoxD box = new BoundingBoxD( borderStart, borderEnd );
-			Vector3D result = VRage.Utils.MyUtils.GetRandomBorderPosition( ref box );
+			Vector3D result = MyUtils.GetRandomBorderPosition( ref box );
 
 			return result;
 		}

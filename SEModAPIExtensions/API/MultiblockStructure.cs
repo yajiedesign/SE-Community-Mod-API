@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity.Sector.SectorObject;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
-using SEModAPIInternal.Support;
-
-using VRageMath;
-
 namespace SEModAPIExtensions.API
 {
+	using System;
+	using System.Collections.Generic;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
+	using SEModAPIInternal.Support;
+	using VRageMath;
+
 	public class StructureEntry
 	{
 		public Type type;
@@ -100,7 +99,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 					return false;
 				}
 			}
@@ -308,7 +307,7 @@ namespace SEModAPIExtensions.API
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return new List<Vector3I>( );
 			}
 		}

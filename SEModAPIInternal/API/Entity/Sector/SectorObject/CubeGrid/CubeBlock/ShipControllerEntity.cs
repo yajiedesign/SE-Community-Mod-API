@@ -1,12 +1,12 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
 	[DataContract( Name = "ShipControllerEntityProxy" )]
 	public class ShipControllerEntity : TerminalBlockEntity
 	{
@@ -140,7 +140,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 						}
 						catch (Exception ex)
 						{
-							LogManager.ErrorLog.WriteLine(ex);
+							ApplicationLog.BaseLog.Error(ex);
 						}
 					}
 
@@ -157,7 +157,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 						}
 						catch (Exception ex)
 						{
-							LogManager.ErrorLog.WriteLine(ex);
+							ApplicationLog.BaseLog.Error(ex);
 						}
 					}
 
@@ -200,7 +200,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 				if ( type == null )
 					throw new Exception( "Could not find type for ShipControllerEntity" );
 
-				result &= BaseObject.HasMethod( type, ShipControllerEntityGetNetworkManager );
+				result &= HasMethod( type, ShipControllerEntityGetNetworkManager );
 				//				result &= BaseObject.HasMethod(type, ShipControllerEntityGetPilotEntityMethod);
 				//				result &= BaseObject.HasMethod(type, ShipControllerEntitySetPilotEntityMethod);
 
@@ -208,7 +208,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -309,7 +309,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -336,7 +336,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -349,7 +349,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

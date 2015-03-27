@@ -1,12 +1,13 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-using SEModAPIInternal.API.Common;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "OreDetectorEntityProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
+	[DataContract]
 	public class OreDetectorEntity : FunctionalBlockEntity
 	{
 		#region "Attributes"
@@ -148,7 +149,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}

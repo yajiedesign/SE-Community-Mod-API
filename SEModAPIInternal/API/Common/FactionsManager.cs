@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-
-using SEModAPIInternal.API.Entity;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Common
 {
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel;
+	using NLog;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Definitions;
+	using SEModAPIInternal.API.Entity;
+	using SEModAPIInternal.Support;
+
 	public class Faction
 	{
 		#region "Attributes"
@@ -143,7 +143,7 @@ namespace SEModAPIInternal.API.Common
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -173,7 +173,7 @@ namespace SEModAPIInternal.API.Common
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -352,6 +352,8 @@ namespace SEModAPIInternal.API.Common
 		public static string FactionNetManagerRemoveFactionMethod = "RemoveFaction";
 		public static string FactionNetManagerRemoveMemberMethod = "MemberLeaves";
 
+		private static readonly Logger Log = LogManager.GetLogger( "BaseLog" );
+
 		#endregion "Attributes"
 
 		#region "Constructors and Initializers"
@@ -361,7 +363,7 @@ namespace SEModAPIInternal.API.Common
 			m_instance = this;
 			m_factions = new Dictionary<long, Faction>( );
 
-			Console.WriteLine( "Finished loading FactionsManager" );
+			Log.Info( "Finished loading FactionsManager" );
 		}
 
 		#endregion "Constructors and Initializers"
@@ -370,13 +372,7 @@ namespace SEModAPIInternal.API.Common
 
 		public static FactionsManager Instance
 		{
-			get
-			{
-				if ( m_instance == null )
-					m_instance = new FactionsManager( );
-
-				return m_instance;
-			}
+			get { return m_instance ?? ( m_instance = new FactionsManager( ) ); }
 		}
 
 		public Object BackingObject
@@ -421,7 +417,7 @@ namespace SEModAPIInternal.API.Common
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				Log.Error( ex );
 				return false;
 			}
 		}

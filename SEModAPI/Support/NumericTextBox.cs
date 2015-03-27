@@ -1,12 +1,11 @@
-using System;
-using System.Globalization;
-using System.Windows.Forms;
-
 namespace SEModAPI.Support
 {
-    public class NumericTextBox : TextBox
+	using System;
+	using System.Globalization;
+	using System.Windows.Forms;
+
+	public class NumericTextBox : TextBox
     {
-        private System.ComponentModel.IContainer components;
         bool allowSpace = false;
 
         // Restricts the entry of characters to digits (including hex), the negative sign,
@@ -15,7 +14,7 @@ namespace SEModAPI.Support
         {
             base.OnKeyPress(e);
 
-            NumberFormatInfo numberFormatInfo = System.Globalization.CultureInfo.CurrentCulture.NumberFormat;
+            NumberFormatInfo numberFormatInfo = CultureInfo.CurrentCulture.NumberFormat;
             string decimalSeparator = numberFormatInfo.NumberDecimalSeparator;
             string groupSeparator = numberFormatInfo.NumberGroupSeparator;
             string negativeSign = numberFormatInfo.NegativeSign;

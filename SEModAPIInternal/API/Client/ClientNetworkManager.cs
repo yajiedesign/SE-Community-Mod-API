@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using SEModAPIInternal.API.Common;
-
 namespace SEModAPIInternal.API.Client
 {
+	using System;
+	using System.Collections.Generic;
+	using SEModAPIInternal.API.Common;
+
 	public class ClientNetworkManager : NetworkManager
 	{
 		#region "Attributes"
@@ -20,13 +20,7 @@ namespace SEModAPIInternal.API.Client
 
 		new public static ClientNetworkManager Instance
 		{
-			get
-			{
-				if ( m_instance == null )
-					m_instance = new ClientNetworkManager( );
-
-				return m_instance;
-			}
+			get { return m_instance ?? ( m_instance = new ClientNetworkManager( ) ); }
 		}
 
 		#endregion "Properties"

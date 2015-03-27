@@ -1,11 +1,10 @@
-using System;
-using Sandbox.Common.ObjectBuilders;
-
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
-
 namespace SEModAPIInternal.API.Common
 {
+	using System;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
+
 	public class BlockRegistry : GameObjectRegistry
 	{
 		#region "Attributes"
@@ -103,13 +102,7 @@ namespace SEModAPIInternal.API.Common
 
 		new public static BlockRegistry Instance
 		{
-			get
-			{
-				if ( m_instance == null )
-					m_instance = new BlockRegistry( );
-
-				return m_instance;
-			}
+			get { return m_instance ?? ( m_instance = new BlockRegistry( ) ); }
 		}
 
 		#endregion "Properties"

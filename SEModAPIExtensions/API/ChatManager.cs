@@ -1,36 +1,31 @@
-﻿using SteamSDK;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.ServiceModel;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Xml;
-
-using Sandbox.Common.ObjectBuilders;
-
-using SEModAPIInternal.API.Server;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity;
-using SEModAPIInternal.API.Entity.Sector.SectorObject;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
-using SEModAPIInternal.Support;
-
-using VRage;
-using VRage.Common.Utils;
-using VRageMath;
-using VRage.Library.Utils;
-
-using Sandbox.ModAPI;
-
-namespace SEModAPIExtensions.API
+﻿namespace SEModAPIExtensions.API
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Configuration;
+	using System.IO;
 	using System.Linq;
+	using System.Reflection;
+	using System.Runtime.InteropServices;
+	using System.Text.RegularExpressions;
+	using System.Threading;
+	using System.Xml;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.ModAPI;
+	using SEModAPIInternal.API.Chat;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
+	using SEModAPIInternal.API.Server;
+	using SEModAPIInternal.Support;
+	using SteamSDK;
+	using VRage;
+	using VRage.Library.Utils;
+	using VRageMath;
 
+	public delegate void ChatEventDelegate( ulong steamId, string playerName, string message );
 	public class ChatManager
 	{
 		public struct ChatCommand
@@ -103,6 +98,8 @@ namespace SEModAPIExtensions.API
 
 		public static string ChatMessageMessageField = "=1E7qaeCHzjZbPzDjaRW5iq5d10=";
 
+		public event ChatEventDelegate ChatMessage;
+
 		#endregion
 
 		#region "Constructors and Initializers"
@@ -170,28 +167,7 @@ namespace SEModAPIExtensions.API
 			RegisterChatCommand( unbanCommand );
 			RegisterChatCommand( asyncSaveCommand );
 
-			SetupWcfService( );
-
-			Console.WriteLine( "Finished loading ChatManager" );
-		}
-
-		private static void SetupWcfService( )
-		{
-			if ( !Server.Instance.IsWCFEnabled )
-				return;
-
-			ServiceHost selfHost = null;
-			try
-			{
-				selfHost = Server.CreateServiceHost( typeof( ChatService ), typeof( IChatServiceContract ), "Chat/", "ChatService" );
-				selfHost.Open( );
-			}
-			catch ( CommunicationException ex )
-			{
-				LogManager.ErrorLog.WriteLineAndConsole( string.Format( "An exception occurred: {0}", ex.Message ) );
-				if ( selfHost != null )
-					selfHost.Abort( );
-			}
+			ApplicationLog.BaseLog.Info( "Finished loading ChatManager" );
 		}
 
 		#endregion
@@ -260,7 +236,7 @@ namespace SEModAPIExtensions.API
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -286,7 +262,7 @@ namespace SEModAPIExtensions.API
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -310,7 +286,7 @@ namespace SEModAPIExtensions.API
 			if ( !commandParsed && entryType == ChatEntryTypeEnum.ChatMsg )
 			{
 				m_chatMessages.Add( string.Format( "{0}: {1}", playerName, message ) );
-				LogManager.ChatLog.WriteLineAndConsole( string.Format( "Chat - Client '{0}': {1}", playerName, message ) );
+				ApplicationLog.ChatLog.Info( "Chat - Client '{0}': {1}", playerName, message );
 			}
 
 			ChatEvent chatEvent = new ChatEvent( ChatEventType.OnChatReceived, DateTime.Now, remoteUserId, 0, message, 0 );
@@ -318,6 +294,8 @@ namespace SEModAPIExtensions.API
 
 			m_resourceLock.AcquireExclusive( );
 			m_chatHistory.Add( chatEvent );
+			if ( ChatMessage != null )
+				ChatMessage.Invoke( remoteUserId, playerName, message );
 			m_resourceLock.ReleaseExclusive( );
 		}
 
@@ -338,18 +316,20 @@ namespace SEModAPIExtensions.API
 
 				m_chatMessages.Add( string.Format( "Server: {0}", message ) );
 
-				LogManager.ChatLog.WriteLineAndConsole( string.Format( "Chat - Server: {0}", message ) );
+				ApplicationLog.ChatLog.Info( string.Format( "Chat - Server: {0}", message ) );
 
 				ChatEvent chatEvent = new ChatEvent( ChatEventType.OnChatSent, DateTime.Now, 0, remoteUserId, message, 0 );
 				Instance.AddEvent( chatEvent );
 
 				m_resourceLock.AcquireExclusive( );
 				m_chatHistory.Add( chatEvent );
+				if ( ChatMessage != null )
+					ChatMessage.Invoke( 0, "Server", message );
 				m_resourceLock.ReleaseExclusive( );
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -377,7 +357,7 @@ namespace SEModAPIExtensions.API
 						Instance.AddEvent( chatEvent );
 					}
 					m_chatMessages.Add( string.Format( "Server: {0}", message ) );
-					LogManager.ChatLog.WriteLineAndConsole( string.Format( "Chat - Server: {0}", message ) );
+					ApplicationLog.ChatLog.Info( string.Format( "Chat - Server: {0}", message ) );
 				}
 
 				//Send a loopback chat event for server-sent messages
@@ -386,11 +366,13 @@ namespace SEModAPIExtensions.API
 
 				m_resourceLock.AcquireExclusive( );
 				m_chatHistory.Add( selfChatEvent );
+				if ( ChatMessage != null )
+					ChatMessage.Invoke( 0, "Server", message );
 				m_resourceLock.ReleaseExclusive( );
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -439,7 +421,7 @@ namespace SEModAPIExtensions.API
 					}
 					catch ( Exception ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
@@ -447,7 +429,7 @@ namespace SEModAPIExtensions.API
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -758,13 +740,11 @@ namespace SEModAPIExtensions.API
 						if (item.IsDead)
 							playersToRemove.Add(item);
 					}
-
 					//TODO - This is VERY slow. Need to find a much faster way to do this
 					//TODO - Need to find a way to remove the player entries from the main list, not just from the blocks and factions
 					foreach (var item in playersToRemove)
 					{
 						bool playerRemoved = false;
-
 						//Check if any of the players we're about to remove own blocks
 						//If so, set the owner to 0 and set the share mode to None
 						foreach (var cubeGrid in SectorObjectManager.Instance.GetTypedInternalData<CubeGridEntity>())
@@ -775,12 +755,10 @@ namespace SEModAPIExtensions.API
 								{
 									cubeBlock.Owner = 0;
 									cubeBlock.ShareMode = MyOwnershipShareModeEnum.None;
-
 									playerRemoved = true;
 								}
 							}
 						}
-
 						foreach (var entry in FactionsManager.Instance.Factions)
 						{
 							foreach (var member in entry.Members)
@@ -788,17 +766,14 @@ namespace SEModAPIExtensions.API
 								if (member.PlayerId == item.PlayerId)
 								{
 									entry.RemoveMember(member.PlayerId);
-
 									playerRemoved = true;
 								}
 							}
 						}
-
 						if (playerRemoved)
 							playersRemovedCount++;
 					}
 				}
-
 				SendPrivateChatMessage(remoteUserId, "Deleted " + playersRemovedCount.ToString() + " player entries");
 			}
 			*/
@@ -859,7 +834,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 			}
 		}
@@ -901,7 +876,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 			}
 		}
@@ -956,7 +931,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 			}
 		}
@@ -1039,7 +1014,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 			}
 		}
@@ -1083,7 +1058,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 			}
 		}
@@ -1144,7 +1119,7 @@ namespace SEModAPIExtensions.API
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 			}
 		}
@@ -1221,42 +1196,42 @@ namespace SEModAPIExtensions.API
 			if ( commandParts[ 1 ].ToLower( ).Equals( "all" ) )
 			{
 				List<BaseEntity> entities = SectorObjectManager.Instance.GetTypedInternalData<BaseEntity>( );
-				LogManager.APILog.WriteLineAndConsole( "Total entities: '" + entities.Count + "'" );
+				ApplicationLog.BaseLog.Info( "Total entities: '" + entities.Count + "'" );
 
 				SendPrivateChatMessage( remoteUserId, "Total entities: '" + entities.Count + "'" );
 			}
 			if ( commandParts[ 1 ].ToLower( ).Equals( "cubegrid" ) )
 			{
 				List<CubeGridEntity> entities = SectorObjectManager.Instance.GetTypedInternalData<CubeGridEntity>( );
-				LogManager.APILog.WriteLineAndConsole( "Cubegrid entities: '" + entities.Count + "'" );
+				ApplicationLog.BaseLog.Info( "Cubegrid entities: '" + entities.Count + "'" );
 
 				SendPrivateChatMessage( remoteUserId, "Cubegrid entities: '" + entities.Count + "'" );
 			}
 			if ( commandParts[ 1 ].ToLower( ).Equals( "character" ) )
 			{
 				List<CharacterEntity> entities = SectorObjectManager.Instance.GetTypedInternalData<CharacterEntity>( );
-				LogManager.APILog.WriteLineAndConsole( "Character entities: '" + entities.Count + "'" );
+				ApplicationLog.BaseLog.Info( "Character entities: '" + entities.Count + "'" );
 
 				SendPrivateChatMessage( remoteUserId, "Character entities: '" + entities.Count + "'" );
 			}
 			if ( commandParts[ 1 ].ToLower( ).Equals( "voxelmap" ) )
 			{
 				List<VoxelMap> entities = SectorObjectManager.Instance.GetTypedInternalData<VoxelMap>( );
-				LogManager.APILog.WriteLineAndConsole( "Voxelmap entities: '" + entities.Count + "'" );
+				ApplicationLog.BaseLog.Info( "Voxelmap entities: '" + entities.Count + "'" );
 
 				SendPrivateChatMessage( remoteUserId, "Voxelmap entities: '" + entities.Count + "'" );
 			}
 			if ( commandParts[ 1 ].ToLower( ).Equals( "meteor" ) )
 			{
 				List<Meteor> entities = SectorObjectManager.Instance.GetTypedInternalData<Meteor>( );
-				LogManager.APILog.WriteLineAndConsole( "Meteor entities: '" + entities.Count + "'" );
+				ApplicationLog.BaseLog.Info( "Meteor entities: '" + entities.Count + "'" );
 
 				SendPrivateChatMessage( remoteUserId, "Meteor entities: '" + entities.Count + "'" );
 			}
 			if ( commandParts[ 1 ].ToLower( ).Equals( "floatingobject" ) )
 			{
 				List<FloatingObject> entities = SectorObjectManager.Instance.GetTypedInternalData<FloatingObject>( );
-				LogManager.APILog.WriteLineAndConsole( "Floating object entities: '" + entities.Count + "'" );
+				ApplicationLog.BaseLog.Info( "Floating object entities: '" + entities.Count + "'" );
 
 				SendPrivateChatMessage( remoteUserId, "Floating object entities: '" + entities.Count + "'" );
 			}
@@ -1411,13 +1386,13 @@ namespace SEModAPIExtensions.API
 				{
 					SendPrivateChatMessage( remoteUserId, "There is more than one player with the specified name;" );
 
-					string playersString = playerItems.Aggregate( string.Empty, ( current, playeritem ) => string.Format( "{0}{1} ", current, playeritem.name  ) );
+					string playersString = playerItems.Aggregate( string.Empty, ( current, playeritem ) => string.Format( "{0}{1} ", current, playeritem.Name ) );
 
 					SendPrivateChatMessage( remoteUserId, playersString );
 					return;
 				}
 
-				steamId = playerItems[ 0 ].steamId;
+				steamId = playerItems[ 0 ].SteamId;
 				if ( steamId == 0 )
 					return;
 			}
@@ -1429,7 +1404,7 @@ namespace SEModAPIExtensions.API
 			}
 
 			PlayerManager.Instance.KickPlayer( steamId );
-			SendPrivateChatMessage( remoteUserId, string.Format( "Kicked player '{0}' off of the server", ( playerItems.Count == 0 ? rawSteamId : playerItems[ 0 ].name ) ) );
+			SendPrivateChatMessage( remoteUserId, string.Format( "Kicked player '{0}' off of the server", ( playerItems.Count == 0 ? rawSteamId : playerItems[ 0 ].Name ) ) );
 		}
 
 		protected void Command_Ban( ChatEvent chatEvent )
@@ -1466,13 +1441,13 @@ namespace SEModAPIExtensions.API
 				{
 					SendPrivateChatMessage( remoteUserId, "There is more than one player with the specified name;" );
 
-					string playersString = playerItems.Aggregate( string.Empty, ( current, playeritem ) => string.Format( "{0}{1} ", current, playeritem.name ) );
+					string playersString = playerItems.Aggregate( string.Empty, ( current, playeritem ) => string.Format( "{0}{1} ", current, playeritem.Name ) );
 
 					SendPrivateChatMessage( remoteUserId, playersString );
 					return;
 				}
 
-				steamId = playerItems[ 0 ].steamId;
+				steamId = playerItems[ 0 ].SteamId;
 				if ( steamId == 0 )
 					return;
 			}
@@ -1485,7 +1460,7 @@ namespace SEModAPIExtensions.API
 
 			PlayerManager.Instance.BanPlayer( steamId );
 
-			SendPrivateChatMessage( remoteUserId, string.Format( "Banned '{0}' and kicked them off of the server", ( playerItems.Count == 0 ? rawSteamId : playerItems[ 0 ].name ) ) );
+			SendPrivateChatMessage( remoteUserId, string.Format( "Banned '{0}' and kicked them off of the server", ( playerItems.Count == 0 ? rawSteamId : playerItems[ 0 ].Name ) ) );
 		}
 
 		protected void Command_Unban( ChatEvent chatEvent )
@@ -1522,20 +1497,20 @@ namespace SEModAPIExtensions.API
 				{
 					SendPrivateChatMessage( remoteUserId, "There is more than one player with the specified name;" );
 
-					string playersString = playerItems.Aggregate( string.Empty, ( current, playeritem ) => string.Format( "{0}{1} ", current, playeritem.name ) );
+					string playersString = playerItems.Aggregate( string.Empty, ( current, playeritem ) => string.Format( "{0}{1} ", current, playeritem.Name ) );
 
 					SendPrivateChatMessage( remoteUserId, playersString );
 					return;
 				}
 
-				steamId = playerItems[ 0 ].steamId;
+				steamId = playerItems[ 0 ].SteamId;
 				if ( steamId == 0 )
 					return;
 			}
 
 			PlayerManager.Instance.UnBanPlayer( steamId );
 
-			SendPrivateChatMessage( remoteUserId, string.Format( "Unbanned '{0}'", ( playerItems.Count == 0 ? rawSteamId : playerItems[ 0 ].name ) ) );
+			SendPrivateChatMessage( remoteUserId, string.Format( "Unbanned '{0}'", ( playerItems.Count == 0 ? rawSteamId : playerItems[ 0 ].Name ) ) );
 		}
 
 		#endregion

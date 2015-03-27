@@ -1,16 +1,16 @@
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 {
+	using System;
+	using System.ComponentModel;
+	using System.IO;
+	using System.Reflection;
+	using System.Runtime.Serialization;
+	using Microsoft.Xml.Serialization.GeneratedAssembly;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Definitions;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
 	[DataContract( Name = "CharacterEntityProxy" )]
 	public class CharacterEntity : BaseEntity
 	{
@@ -293,26 +293,26 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 				if ( type == null )
 					throw new Exception( "Could not find internal type for CharacterEntity" );
 				bool result = true;
-				result &= BaseObject.HasMethod( type, CharacterGetHealthMethod );
-				result &= BaseObject.HasMethod( type, CharacterDamageCharacterMethod );
-				result &= BaseObject.HasMethod( type, CharacterSetHealthMethod );
-				result &= BaseObject.HasMethod( type, CharacterGetBatteryMethod );
-				result &= BaseObject.HasMethod( type, CharacterGetInventoryMethod );
-				result &= BaseObject.HasMethod( type, CharacterGetDisplayNameMethod );
-				result &= BaseObject.HasMethod( type, CharacterGetNetworkManagerMethod );
-				result &= BaseObject.HasField( type, CharacterItemListField );
+				result &= HasMethod( type, CharacterGetHealthMethod );
+				result &= HasMethod( type, CharacterDamageCharacterMethod );
+				result &= HasMethod( type, CharacterSetHealthMethod );
+				result &= HasMethod( type, CharacterGetBatteryMethod );
+				result &= HasMethod( type, CharacterGetInventoryMethod );
+				result &= HasMethod( type, CharacterGetDisplayNameMethod );
+				result &= HasMethod( type, CharacterGetNetworkManagerMethod );
+				result &= HasField( type, CharacterItemListField );
 
 				Type type2 = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( CharacterBatteryNamespace, CharacterBatteryClass );
 				if ( type2 == null )
 					throw new Exception( "Could not find battery type for CharacterEntity" );
-				result &= BaseObject.HasMethod( type2, CharacterBatterySetBatteryCapacityMethod );
-				result &= BaseObject.HasField( type2, CharacterBatteryCapacityField );
+				result &= HasMethod( type2, CharacterBatterySetBatteryCapacityMethod );
+				result &= HasField( type2, CharacterBatteryCapacityField );
 
 				return result;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -321,7 +321,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 		{
 			m_isDisposed = true;
 
-			LogManager.APILog.WriteLine( "Disposing CharacterEntity '" + Name + "'" );
+			ApplicationLog.BaseLog.Debug( "Disposing CharacterEntity '" + Name + "'" );
 
 			EntityEventManager.EntityEvent newEvent = new EntityEventManager.EntityEvent( );
 			newEvent.type = EntityEventManager.EntityEventType.OnCharacterDeleted;
@@ -356,7 +356,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return "";
 			}
 		}
@@ -371,7 +371,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return -1;
 			}
 		}
@@ -388,7 +388,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -402,7 +402,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -417,7 +417,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -431,7 +431,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -512,7 +512,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -532,7 +532,6 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 				packetType = InternalType.GetNestedType("06F1DF314B7D765E189DFBBF84C09B00", BindingFlags.Public | BindingFlags.NonPublic);
 				method = typeof(CharacterEntityNetworkManager).GetMethod("ReceiveOrientationPacket", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 				result &= NetworkManager.RegisterCustomPacketHandler(PacketRegistrationType.Instance, packetType, method, InternalType);
-
 				Type type = SandboxGameAssemblyWrapper.Instance.GetAssemblyType("AAC05F537A6F0F6775339593FBDFC564", "7B40EEB62BF9EBADF967050BFA3976CA");
 				packetType = type.GetNestedType("4850B8A3B1027F683755D493244815AA", BindingFlags.Public | BindingFlags.NonPublic);
 				method = typeof(CharacterEntityNetworkManager).GetMethod("ReceiveSpawnPacket", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
@@ -545,7 +544,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -558,7 +557,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -571,7 +570,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -585,7 +584,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

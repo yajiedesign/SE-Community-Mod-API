@@ -1,10 +1,10 @@
-using System;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "ShipGrinderEntityProxy" )]
+	using System;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+
+	[DataContract]
 	public class ShipGrinderEntity : ShipToolBaseEntity
 	{
 		#region "Attributes"

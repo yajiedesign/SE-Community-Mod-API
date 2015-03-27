@@ -1,32 +1,13 @@
-using SteamSDK;
-
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Collections;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.IO;
-using System.Runtime.ExceptionServices;
-using System.Security;
-
-using Sandbox.ModAPI;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
-using Sandbox.Common.ObjectBuilders.Voxels;
-
-using SEModAPIInternal.Support;
-using SEModAPIInternal.API.Entity;
-using SEModAPIInternal.API.Utility;
-using System.Linq.Expressions;
-
-using VRageMath;
-
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock;
-
 namespace SEModAPIInternal.API.Common
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Reflection;
+	using SEModAPIInternal.API.Entity;
+	using SEModAPIInternal.API.Utility;
+	using SEModAPIInternal.Support;
+	using SteamSDK;
+
 	//PacketIdEnum Attribute: .4C6398741B0F8804D769E5A2E3999E1D
 
 	public enum PacketIds
@@ -122,16 +103,16 @@ namespace SEModAPIInternal.API.Common
 
 		#region "Constructors and Initializers"
 
-		static NetworkManager()
+		static NetworkManager( )
 		{
-			PreparePacketRegistrationMethod();
+			PreparePacketRegistrationMethod( );
 		}
 
-		protected NetworkManager()
+		protected NetworkManager( )
 		{
-			
+
 			m_instance = this;
-			Console.WriteLine("Finished loading NetworkManager");
+			ApplicationLog.BaseLog.Info(  "Finished loading NetworkManager" );
 		}
 
 		#endregion
@@ -147,7 +128,7 @@ namespace SEModAPIInternal.API.Common
 		{
 			get
 			{
-				Type netManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType(NetworkManagerNamespace, NetworkManagerClass);
+				Type netManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( NetworkManagerNamespace, NetworkManagerClass );
 				return netManagerType;
 			}
 		}
@@ -156,262 +137,262 @@ namespace SEModAPIInternal.API.Common
 
 		#region "Methods"
 
-		public static bool ReflectionUnitTest()
+		public static bool ReflectionUnitTest( )
 		{
 			try
 			{
 				bool result = true;
 
 				Type type = NetworkManagerType;
-				if (type == null)
-					throw new Exception("Could not find internal type for NetworkManager");
+				if ( type == null )
+					throw new Exception( "Could not find internal type for NetworkManager" );
 
 				return result;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				Console.WriteLine(ex);
+				ApplicationLog.BaseLog.Error(  ex );
 				return false;
 			}
 		}
 
-		public static Object GetNetworkManager()
+		public static Object GetNetworkManager( )
 		{
 			try
 			{
-				Type networkManagerWrapper = SandboxGameAssemblyWrapper.Instance.GetAssemblyType(NetworkManagerWrapperNamespace, NetworkManagerWrapperClass);
-				Object networkManager = BaseObject.GetStaticFieldValue(networkManagerWrapper, NetworkManagerWrapperManagerInstanceField);
+				Type networkManagerWrapper = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( NetworkManagerWrapperNamespace, NetworkManagerWrapperClass );
+				Object networkManager = BaseObject.GetStaticFieldValue( networkManagerWrapper, NetworkManagerWrapperManagerInstanceField );
 
 				return networkManager;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
 
-		public void SendStruct(ulong remoteUserId, Object data, Type structType)
+		public void SendStruct( ulong remoteUserId, Object data, Type structType )
 		{
 			try
 			{
-				MethodInfo sendStructMethod = NetworkManagerType.GetMethod(NetworkManagerSendStructMethod, BindingFlags.NonPublic | BindingFlags.Instance);
+				MethodInfo sendStructMethod = NetworkManagerType.GetMethod( NetworkManagerSendStructMethod, BindingFlags.NonPublic | BindingFlags.Instance );
 
-				sendStructMethod = sendStructMethod.MakeGenericMethod(structType);
+				sendStructMethod = sendStructMethod.MakeGenericMethod( structType );
 
-				var netManager = GetNetworkManager();
-				sendStructMethod.Invoke(netManager, new object[] { remoteUserId, data });
+				var netManager = GetNetworkManager( );
+				sendStructMethod.Invoke( netManager, new object[ ] { remoteUserId, data } );
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
-		public void RegisterChatReceiver(Action<ulong, string, ChatEntryTypeEnum> action)
+		public void RegisterChatReceiver( Action<ulong, string, ChatEntryTypeEnum> action )
 		{
 			try
 			{
-				var netManager = GetNetworkManager();
-				BaseObject.InvokeEntityMethod(netManager, NetworkManagerRegisterChatReceiverMethod, new object[] { action });
+				var netManager = GetNetworkManager( );
+				BaseObject.InvokeEntityMethod( netManager, NetworkManagerRegisterChatReceiverMethod, new object[ ] { action } );
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
-		private Type GetControlType()
+		private Type GetControlType( )
 		{
-			Type controlType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType(NetworkManagerWrapperNamespace, NetworkManagerControlType);
+			Type controlType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( NetworkManagerWrapperNamespace, NetworkManagerControlType );
 			return controlType;
 		}
 
-		public abstract List<ulong> GetConnectedPlayers();
+		public abstract List<ulong> GetConnectedPlayers( );
 
-		protected Object GetInternalNetManager()
+		protected Object GetInternalNetManager( )
 		{
 			try
 			{
-				Object internalNetManager = BaseObject.GetEntityFieldValue(GetNetworkManager(), NetworkManagerInternalNetManagerField);
+				Object internalNetManager = BaseObject.GetEntityFieldValue( GetNetworkManager( ), NetworkManagerInternalNetManagerField );
 				return internalNetManager;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
 
-		protected Object GetPacketRegistry()
+		protected Object GetPacketRegistry( )
 		{
 			try
 			{
-				Object internalNetManager = GetInternalNetManager();
-				Object packetRegistry = BaseObject.GetEntityFieldValue(internalNetManager, InternalNetManagerPacketRegistryField);
+				Object internalNetManager = GetInternalNetManager( );
+				Object packetRegistry = BaseObject.GetEntityFieldValue( internalNetManager, InternalNetManagerPacketRegistryField );
 
 				return packetRegistry;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
 
-		public Dictionary<Type, ushort> GetRegisteredPacketTypes()
+		public Dictionary<Type, ushort> GetRegisteredPacketTypes( )
 		{
 			try
 			{
-				Object packetRegistry = GetPacketRegistry();
-				Dictionary<Type, ushort> packetTypeIdMap = (Dictionary<Type, ushort>)BaseObject.GetEntityFieldValue(packetRegistry, PacketRegistryTypeIdMapField);
+				Object packetRegistry = GetPacketRegistry( );
+				Dictionary<Type, ushort> packetTypeIdMap = (Dictionary<Type, ushort>)BaseObject.GetEntityFieldValue( packetRegistry, PacketRegistryTypeIdMapField );
 
 				return packetTypeIdMap;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
-				return new Dictionary<Type, ushort>();
+				ApplicationLog.BaseLog.Error( ex );
+				return new Dictionary<Type, ushort>( );
 			}
 		}
 
-		protected static Delegate CreatePacketHandlerDelegate(PacketRegistrationType registrationType, Type packetType, MethodInfo handler)
+		protected static Delegate CreatePacketHandlerDelegate( PacketRegistrationType registrationType, Type packetType, MethodInfo handler )
 		{
 			try
 			{
 				Type delegateType = null;
-				switch (registrationType)
+				switch ( registrationType )
 				{
 					case PacketRegistrationType.Static:
-						delegateType = typeof(NetworkManager.ReceivePacketStatic<>);
+						delegateType = typeof( ReceivePacketStatic<> );
 						break;
 					case PacketRegistrationType.Instance:
-						delegateType = typeof(NetworkManager.ReceivePacketInstance<>);
+						delegateType = typeof( ReceivePacketInstance<> );
 						break;
 					case PacketRegistrationType.Timespan:
-						delegateType = typeof(NetworkManager.ReceivePacketTimespan<>);
+						delegateType = typeof( ReceivePacketTimespan<> );
 						break;
 					default:
 						return null;
 				}
-				delegateType = delegateType.MakeGenericType(packetType);
-				handler = handler.MakeGenericMethod(packetType);
-				Delegate action = Delegate.CreateDelegate(delegateType, handler);
+				delegateType = delegateType.MakeGenericType( packetType );
+				handler = handler.MakeGenericMethod( packetType );
+				Delegate action = Delegate.CreateDelegate( delegateType, handler );
 				return action;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
 
-		protected static void PreparePacketRegistrationMethod()
+		protected static void PreparePacketRegistrationMethod( )
 		{
 			try
 			{
-				Type masterNetManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType(NetworkManager.InternalNetManagerNamespace, NetworkManager.InternalNetManagerClass);
+				Type masterNetManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( InternalNetManagerNamespace, InternalNetManagerClass );
 
-				MethodInfo[] methods = masterNetManagerType.GetMethods(BindingFlags.Public | BindingFlags.Static);
-				foreach (MethodInfo method in methods)
+				MethodInfo[ ] methods = masterNetManagerType.GetMethods( BindingFlags.Public | BindingFlags.Static );
+				foreach ( MethodInfo method in methods )
 				{
-					if (method.Name == "80EECA92933FCDB28F13F8A8A479BFBD")	//Static
+					if ( method.Name == "80EECA92933FCDB28F13F8A8A479BFBD" )	//Static
 					{
-						ParameterInfo[] parameters = method.GetParameters();
-						if (parameters[0].ParameterType.Name == "BA9ED4CEE897B521F3D57A4EE3B3B8FC")
+						ParameterInfo[ ] parameters = method.GetParameters( );
+						if ( parameters[ 0 ].ParameterType.Name == "BA9ED4CEE897B521F3D57A4EE3B3B8FC" )
 						{
 							m_registerPacketHandlerMethod = method;
 						}
 					}
-					if (method.Name == "43F78311C85C936231EC67195D5D2B73")	//Instance
+					if ( method.Name == "43F78311C85C936231EC67195D5D2B73" )	//Instance
 					{
-						ParameterInfo[] parameters = method.GetParameters();
-						if (parameters[0].ParameterType.Name == "22B36CE5809693930272FEC3EE3B9BA8")
+						ParameterInfo[ ] parameters = method.GetParameters( );
+						if ( parameters[ 0 ].ParameterType.Name == "22B36CE5809693930272FEC3EE3B9BA8" )
 						{
 							m_registerPacketHandlerMethod2 = method;
 						}
 					}
-					if (method.Name == "80EECA92933FCDB28F13F8A8A479BFBD")	//Timespan
+					if ( method.Name == "80EECA92933FCDB28F13F8A8A479BFBD" )	//Timespan
 					{
-						ParameterInfo[] parameters = method.GetParameters();
-						if (parameters[0].ParameterType.Name == "54FCB5BECF9CB9F5346B87773CF643A6")
+						ParameterInfo[ ] parameters = method.GetParameters( );
+						if ( parameters[ 0 ].ParameterType.Name == "54FCB5BECF9CB9F5346B87773CF643A6" )
 						{
 							m_registerPacketHandlerMethod3 = method;
 						}
 					}
 				}
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
-		internal static bool RegisterCustomPacketHandler(PacketRegistrationType registrationType, Type packetType, MethodInfo handler, Type baseNetManagerType)
+		internal static bool RegisterCustomPacketHandler( PacketRegistrationType registrationType, Type packetType, MethodInfo handler, Type baseNetManagerType )
 		{
 			try
 			{
-				if (m_registerPacketHandlerMethod == null)
+				if ( m_registerPacketHandlerMethod == null )
 					return false;
-				if (m_registerPacketHandlerMethod2 == null)
+				if ( m_registerPacketHandlerMethod2 == null )
 					return false;
-				if (m_registerPacketHandlerMethod3 == null)
+				if ( m_registerPacketHandlerMethod3 == null )
 					return false;
-				if (packetType == null)
+				if ( packetType == null )
 					return false;
-				if (handler == null)
+				if ( handler == null )
 					return false;
 
 				//Find the old packet handler
-				Type masterNetManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType(NetworkManager.InternalNetManagerNamespace, NetworkManager.InternalNetManagerClass);
-				FieldInfo packetRegisteryHashSetField = masterNetManagerType.GetField("9858E5CD512FFA5633683B9551FA4C30", BindingFlags.NonPublic | BindingFlags.Static);
-				Object packetRegisteryHashSetRaw = packetRegisteryHashSetField.GetValue(null);
-				HashSet<Object> packetRegisteryHashSet = UtilityFunctions.ConvertHashSet(packetRegisteryHashSetRaw);
-				if (packetRegisteryHashSet.Count == 0)
+				Type masterNetManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( InternalNetManagerNamespace, InternalNetManagerClass );
+				FieldInfo packetRegisteryHashSetField = masterNetManagerType.GetField( "9858E5CD512FFA5633683B9551FA4C30", BindingFlags.NonPublic | BindingFlags.Static );
+				Object packetRegisteryHashSetRaw = packetRegisteryHashSetField.GetValue( null );
+				HashSet<Object> packetRegisteryHashSet = UtilityFunctions.ConvertHashSet( packetRegisteryHashSetRaw );
+				if ( packetRegisteryHashSet.Count == 0 )
 					return false;
 				Object matchedHandler = null;
-				List<Object> matchedHandlerList = new List<object>();
-				List<Type> messageTypes = new List<Type>();
-				foreach (var entry in packetRegisteryHashSet)
+				List<Object> matchedHandlerList = new List<object>( );
+				List<Type> messageTypes = new List<Type>( );
+				foreach ( var entry in packetRegisteryHashSet )
 				{
-					FieldInfo delegateField = entry.GetType().GetField("C2AEC105AF9AB1EF82105555583139FC");
+					FieldInfo delegateField = entry.GetType( ).GetField( "C2AEC105AF9AB1EF82105555583139FC" );
 					Type fieldType = delegateField.FieldType;
-					Type[] genericArgs = fieldType.GetGenericArguments();
-					Type[] messageTypeArgs = genericArgs[1].GetGenericArguments();
-					Type messageType = messageTypeArgs[0];
-					if (messageType == packetType)
+					Type[ ] genericArgs = fieldType.GetGenericArguments( );
+					Type[ ] messageTypeArgs = genericArgs[ 1 ].GetGenericArguments( );
+					Type messageType = messageTypeArgs[ 0 ];
+					if ( messageType == packetType )
 					{
 						matchedHandler = entry;
-						matchedHandlerList.Add(entry);
+						matchedHandlerList.Add( entry );
 					}
 
-					messageTypes.Add(messageType);
+					messageTypes.Add( messageType );
 				}
 
-				if (matchedHandlerList.Count > 1)
+				if ( matchedHandlerList.Count > 1 )
 				{
-					LogManager.APILog.WriteLine("Found more than 1 packet handler match for type '" + packetType.Name + "'");
+					ApplicationLog.BaseLog.Warn( "Found more than 1 packet handler match for type '" + packetType.Name + "'" );
 					return false;
 				}
 
-				if (matchedHandler == null)
+				if ( matchedHandler == null )
 					return false;
 
-				FieldInfo field = matchedHandler.GetType().GetField("C2AEC105AF9AB1EF82105555583139FC", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Object value = field.GetValue(matchedHandler);
-				FieldInfo secondaryFlagsField = matchedHandler.GetType().GetField("655022D3B2BE47EBCBA675CCE8B784AD", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Object secondaryFlags = secondaryFlagsField.GetValue(matchedHandler);
+				FieldInfo field = matchedHandler.GetType( ).GetField( "C2AEC105AF9AB1EF82105555583139FC", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				Object value = field.GetValue( matchedHandler );
+				FieldInfo secondaryFlagsField = matchedHandler.GetType( ).GetField( "655022D3B2BE47EBCBA675CCE8B784AD", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				Object secondaryFlags = secondaryFlagsField.GetValue( matchedHandler );
 				MulticastDelegate action = (MulticastDelegate)value;
 				object target = action.Target;
-				FieldInfo field2 = target.GetType().GetField("F774FA5087F549F79181BD64E7B7FF30", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Object value2 = field2.GetValue(target);
+				FieldInfo field2 = target.GetType( ).GetField( "F774FA5087F549F79181BD64E7B7FF30", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				Object value2 = field2.GetValue( target );
 				MulticastDelegate action2 = (MulticastDelegate)value2;
 				object target2 = action2.Target;
 
 				string field3Name = "";
 				string flagsFieldName = "";
 				string serializerFieldName = "";
-				switch (registrationType)
+				switch ( registrationType )
 				{
 					case PacketRegistrationType.Static:
 						field3Name = "2919BD18904683E267BFC1B48709D971";
@@ -431,64 +412,64 @@ namespace SEModAPIInternal.API.Common
 					default:
 						return false;
 				}
-				FieldInfo field3 = target2.GetType().GetField(field3Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Object value3 = field3.GetValue(target2);
+				FieldInfo field3 = target2.GetType( ).GetField( field3Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				Object value3 = field3.GetValue( target2 );
 				MulticastDelegate action3 = (MulticastDelegate)value3;
 
-				FieldInfo flagsField = target2.GetType().GetField(flagsFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Object flagsValue = flagsField.GetValue(target2);
-				FieldInfo serializerField = target2.GetType().GetField(serializerFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				Object serializerValue = serializerField.GetValue(target2);
+				FieldInfo flagsField = target2.GetType( ).GetField( flagsFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				Object flagsValue = flagsField.GetValue( target2 );
+				FieldInfo serializerField = target2.GetType( ).GetField( serializerFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				Object serializerValue = serializerField.GetValue( target2 );
 
-				FieldInfo methodBaseField = action3.GetType().GetField("_methodBase", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				FieldInfo methodPtrField = action3.GetType().GetField("_methodPtr", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-				FieldInfo methodPtrAuxField = action3.GetType().GetField("_methodPtrAux", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+				FieldInfo methodBaseField = action3.GetType( ).GetField( "_methodBase", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				FieldInfo methodPtrField = action3.GetType( ).GetField( "_methodPtr", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
+				FieldInfo methodPtrAuxField = action3.GetType( ).GetField( "_methodPtrAux", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
 
-				Delegate handlerAction = CreatePacketHandlerDelegate(registrationType, packetType, handler);
+				Delegate handlerAction = CreatePacketHandlerDelegate( registrationType, packetType, handler );
 
 				//Remove the old handler from the registry
-				MethodInfo removeMethod = packetRegisteryHashSetRaw.GetType().GetMethod("Remove");
-				removeMethod.Invoke(packetRegisteryHashSetRaw, new object[] { matchedHandler });
+				MethodInfo removeMethod = packetRegisteryHashSetRaw.GetType( ).GetMethod( "Remove" );
+				removeMethod.Invoke( packetRegisteryHashSetRaw, new object[ ] { matchedHandler } );
 
 				//Update the handler delegate with our new method info
-				methodBaseField.SetValue(action3, handlerAction.Method);
-				methodPtrField.SetValue(action3, methodPtrField.GetValue(handlerAction));
-				methodPtrAuxField.SetValue(action3, methodPtrAuxField.GetValue(handlerAction));
+				methodBaseField.SetValue( action3, handlerAction.Method );
+				methodPtrField.SetValue( action3, methodPtrField.GetValue( handlerAction ) );
+				methodPtrAuxField.SetValue( action3, methodPtrAuxField.GetValue( handlerAction ) );
 
-				if(baseNetManagerType == null)
-					baseNetManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType("", "48D79F8E3C8922F14D85F6D98237314C");
+				if ( baseNetManagerType == null )
+					baseNetManagerType = SandboxGameAssemblyWrapper.Instance.GetAssemblyType( "", "48D79F8E3C8922F14D85F6D98237314C" );
 
 				//Register the new packet handler
 				MethodInfo registerMethod = null;
-				switch (registrationType)
+				switch ( registrationType )
 				{
 					case PacketRegistrationType.Static:
-						registerMethod = m_registerPacketHandlerMethod.MakeGenericMethod(packetType);
-						registerMethod.Invoke(null, new object[] { action3, flagsValue, secondaryFlags, serializerValue });
+						registerMethod = m_registerPacketHandlerMethod.MakeGenericMethod( packetType );
+						registerMethod.Invoke( null, new object[ ] { action3, flagsValue, secondaryFlags, serializerValue } );
 						break;
 					case PacketRegistrationType.Instance:
-						registerMethod = m_registerPacketHandlerMethod2.MakeGenericMethod(baseNetManagerType, packetType);
-						registerMethod.Invoke(null, new object[] { action3, flagsValue, secondaryFlags, serializerValue });
+						registerMethod = m_registerPacketHandlerMethod2.MakeGenericMethod( baseNetManagerType, packetType );
+						registerMethod.Invoke( null, new object[ ] { action3, flagsValue, secondaryFlags, serializerValue } );
 						break;
 					case PacketRegistrationType.Timespan:
-						registerMethod = m_registerPacketHandlerMethod3.MakeGenericMethod(packetType);
-						registerMethod.Invoke(null, new object[] { action3, flagsValue, secondaryFlags, serializerValue });
+						registerMethod = m_registerPacketHandlerMethod3.MakeGenericMethod( packetType );
+						registerMethod.Invoke( null, new object[ ] { action3, flagsValue, secondaryFlags, serializerValue } );
 						break;
 					default:
 						return false;
 				}
 				return true;
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
 
-		internal delegate void ReceivePacketStatic<T>(ref T packet, Object netManager) where T : struct;
-		internal delegate void ReceivePacketInstance<T>(Object instanceNetManager, ref T packet, Object masterNetManager) where T : struct;
-		internal delegate void ReceivePacketTimespan<T>(ref T packet, Object netManager, TimeSpan time) where T : struct;
+		internal delegate void ReceivePacketStatic<T>( ref T packet, Object netManager ) where T : struct;
+		internal delegate void ReceivePacketInstance<T>( Object instanceNetManager, ref T packet, Object masterNetManager ) where T : struct;
+		internal delegate void ReceivePacketTimespan<T>( ref T packet, Object netManager, TimeSpan time ) where T : struct;
 
 		#endregion
 	}

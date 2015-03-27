@@ -1,20 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity.Sector.SectorObject;
-using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
-using SEModAPIInternal.Support;
-
-using VRageMath;
-
 namespace SEServerExtender
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Windows.Forms;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Definitions;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject;
+	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
+	using SEModAPIInternal.Support;
 	using VRage.Collections;
+	using VRageMath;
 
 	public partial class CubeBlockDialog : Form
 	{
@@ -74,7 +71,7 @@ namespace SEServerExtender
 				}
 				catch (Exception ex)
 				{
-					LogManager.ErrorLog.WriteLine(ex);
+					ApplicationLog.BaseLog.Error(ex);
 					return Vector3I.Zero;
 				}
 			}
@@ -102,7 +99,7 @@ namespace SEServerExtender
 			}
 			catch (Exception ex)
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error(ex);
 			}
 		}
 

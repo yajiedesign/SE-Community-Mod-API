@@ -1,8 +1,9 @@
-using System;
-using SEModAPI.Support;
-
 namespace SEModAPIInternal.Support
 {
+	using System;
+	using NLog;
+	using SEModAPI.Support;
+
 	public enum EntityExceptionState
 	{
 		Invalid,
@@ -13,10 +14,11 @@ namespace SEModAPIInternal.Support
 
 	public class EntityException : AutoException
 	{
+		private static readonly Logger Log = LogManager.GetLogger( "BaseLog" );
 		public EntityException( EntityExceptionState state, string additionnalInfo = "", Exception original = null )
 			: base( state, additionnalInfo )
 		{
-			LogManager.ErrorLog.WriteLine( original );
+			Log.Error( original );
 		}
 
 		public new string[ ] StateRepresentation =

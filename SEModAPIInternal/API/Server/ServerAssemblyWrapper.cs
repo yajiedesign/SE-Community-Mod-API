@@ -1,92 +1,70 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
-using System.Security;
-using Havok;
-using Sandbox.Audio;
-using Sandbox.Input;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Entity;
-using SEModAPIInternal.Support;
-using SteamSDK;
-using VRage.Common.Utils;
-using VRage.Library.Utils;
-using VRage.Plugins;
-using VRage.Utils;
-
-namespace SEModAPIInternal.API.Server
+﻿namespace SEModAPIInternal.API.Server
 {
+	using System;
+	using System.ComponentModel;
+	using System.IO;
+	using System.Reflection;
+	using System.Runtime.ExceptionServices;
+	using System.Runtime.InteropServices;
+	using System.Security;
+	using Havok;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Entity;
+	using SEModAPIInternal.Support;
+	using VRage.Audio;
+	using VRage.Input;
+	using VRage.Library.Utils;
+    using SteamSDK;
+
 	public class ServerAssemblyWrapper
 	{
-		#region "Attributes"
-
-		private static ServerAssemblyWrapper m_instance;
-		private static Assembly m_assembly;
-		private static AppDomain m_domain;
+		private static ServerAssemblyWrapper _instance;
+		private static Assembly _assembly;
+		//private static AppDomain _domain;
 
 		public static string DedicatedServerNamespace = "";
 		public static string DedicatedServerClass = "Sandbox.AppCode.App.MyProgram";
 
 		public static string DedicatedServerStartupBaseMethod = "RunMain";
 
-		#endregion "Attributes"
-
 		#region "Constructors and Initializers"
 
+		/// <exception cref="SecurityException">A codebase that does not start with "file://" was specified without the required <see cref="T:System.Net.WebPermission" />. </exception>
+		/// <exception cref="BadImageFormatException">Not a valid assembly. -or- assembly was compiled with a later version of the common language runtime than the version that is currently loaded.</exception>
+		/// <exception cref="FileLoadException">A file that was found could not be loaded. </exception>
+		/// <exception cref="FileNotFoundException">Assembly is not found, or the module you are trying to load does not specify a filename extension. </exception>
+		/// <exception cref="PathTooLongException">The assembly name is longer than MAX_PATH characters.</exception>
+		/// <exception cref="AppDomainUnloadedException">The operation is attempted on an unloaded application domain. </exception>
 		protected ServerAssemblyWrapper( )
 		{
-			m_instance = this;
+			_instance = this;
 
 			string assemblyPath = Path.Combine( AppDomain.CurrentDomain.BaseDirectory, "SpaceEngineersDedicated.exe" );
-			m_assembly = Assembly.UnsafeLoadFrom( assemblyPath );
+			_assembly = Assembly.UnsafeLoadFrom( assemblyPath );
 
-			/*
-			byte[] b = File.ReadAllBytes(assemblyPath);
-			Assembly rawServerAssembly = Assembly.Load(b);
-			m_domain = AppDomain.CreateDomain("Server Domain");
-			m_assembly = m_domain.Load(rawServerAssembly.GetName());
-			*/
-
-			Console.WriteLine( "Finished loading ServerAssemblyWrapper" );
+			ApplicationLog.BaseLog.Info( "Finished loading ServerAssemblyWrapper" );
 		}
 
 		#endregion "Constructors and Initializers"
 
 		#region "Properties"
 
-		public static AppDomain ServerDomain
-		{
-			get
-			{
-				return m_domain;
-			}
-		}
-
 		public static ServerAssemblyWrapper Instance
 		{
-			get
-			{
-				if ( m_instance == null )
-					m_instance = new ServerAssemblyWrapper( );
-
-				return m_instance;
-			}
+			get { return _instance ?? ( _instance = new ServerAssemblyWrapper( ) ); }
 		}
 
 		public static Type InternalType
 		{
 			get
 			{
-				if ( m_assembly == null )
+				if ( _assembly == null )
 				{
 					byte[ ] b = File.ReadAllBytes( "SpaceEngineersDedicated.exe" );
-					m_assembly = Assembly.Load( b );
+					_assembly = Assembly.Load( b );
 				}
 
-				Type dedicatedServerType = m_assembly.GetType( DedicatedServerNamespace + "." + DedicatedServerClass );
+				Type dedicatedServerType = _assembly.GetType( DedicatedServerNamespace + "." + DedicatedServerClass );
 				return dedicatedServerType;
 			}
 		}
@@ -109,7 +87,7 @@ namespace SEModAPIInternal.API.Server
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -142,7 +120,7 @@ namespace SEModAPIInternal.API.Server
 				{
 					//MyGuiGameControlsHelpers.UnloadContent( );
 				}
-				 */ 
+				 */
 			}
 			catch ( Exception )
 			{
@@ -180,12 +158,6 @@ namespace SEModAPIInternal.API.Server
 			}
 			*/
 
-			try
-			{
-				MyPlugins.Unload( );
-			}
-			catch { }
-
 			MyAudio.Static.UnloadData( );
 			MyAudio.UnloadData( );
 			MyFileSystem.Reset( );
@@ -201,19 +173,12 @@ namespace SEModAPIInternal.API.Server
 		{
 			try
 			{
-				//Make sure the log, if running, is closed out before we begin
-				if ( MyLog.Default != null )
-					MyLog.Default.Close( );
-
 				SandboxGameAssemblyWrapper.Instance.SetNullRender( true );
 				MyFileSystem.Reset( );
 
 				//Prepare the parameters
-				bool isUsingInstance = false;
-				if ( instanceName != "" )
-					isUsingInstance = true;
-				object[ ] methodParams = new object[ ]
-				{
+				bool isUsingInstance = instanceName != string.Empty;
+				object[ ] methodParams = {
 					instanceName,
 					overridePath,
 					isUsingInstance,
@@ -228,56 +193,38 @@ namespace SEModAPIInternal.API.Server
 			}
 			catch ( Win32Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Win32Exception - Server crashed" );
-
-				LogManager.APILog.WriteLine( ex );
-				LogManager.APILog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
-				LogManager.ErrorLog.WriteLine( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 
 				return false;
 			}
 			catch ( ExternalException ex )
 			{
-				LogManager.APILog.WriteLine( "ExternalException - Server crashed" );
-
-				LogManager.APILog.WriteLine( ex );
-				LogManager.APILog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
-				LogManager.ErrorLog.WriteLine( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 
 				return false;
 			}
 			catch ( TargetInvocationException ex )
 			{
-				LogManager.APILog.WriteLine( "TargetInvocationException - Server crashed" );
-
-				LogManager.APILog.WriteLine( ex );
-				LogManager.APILog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
-				LogManager.ErrorLog.WriteLine( Environment.StackTrace );
+				//Generally, we won't log this, since it will always be thrown on server stop.
+				if ( ApplicationLog.BaseLog.IsTraceEnabled )
+					ApplicationLog.BaseLog.Trace( ex );
 
 				return false;
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( "Exception - Server crashed" );
-
-				LogManager.APILog.WriteLine( ex );
-				LogManager.APILog.WriteLine( Environment.StackTrace );
-				LogManager.ErrorLog.WriteLine( ex );
-				LogManager.ErrorLog.WriteLine( Environment.StackTrace );
+				ApplicationLog.BaseLog.Error( ex );
 
 				return false;
 			}
 			/*
 		finally
 		{
-			m_instance = null;
+			_instance = null;
 			Reset();
-			if (m_domain != null)
+			if (_domain != null)
 			{
-				AppDomain.Unload(m_domain);
+				AppDomain.Unload(_domain);
 			}
 
 			GC.Collect();
@@ -297,20 +244,14 @@ namespace SEModAPIInternal.API.Server
 					entity.Dispose();
 				}
 				TimeSpan cleanupTime = DateTime.Now - startedEntityCleanup;
-				Console.WriteLine("Took " + cleanupTime.TotalSeconds.ToString() + " seconds to clean up entities");
+				ApplicationLog.BaseLog.Debug("Took " + cleanupTime.TotalSeconds.ToString() + " seconds to clean up entities");
 				*/
 				Object mainGame = SandboxGameAssemblyWrapper.MainGame;
 				BaseObject.InvokeEntityMethod( mainGame, "Dispose" );
-
-				/*
-				Reset();
-				AppDomain.Unload(m_domain);
-				m_domain = null;
-				 */
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

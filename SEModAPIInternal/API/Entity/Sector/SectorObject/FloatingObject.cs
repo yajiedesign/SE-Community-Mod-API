@@ -1,14 +1,12 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-
-using Sandbox.Common.ObjectBuilders;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 {
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
 	[DataContract( Name = "FloatingObjectProxy" )]
 	public class FloatingObject : BaseEntity
 	{
@@ -115,7 +113,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -135,7 +133,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -208,7 +206,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}

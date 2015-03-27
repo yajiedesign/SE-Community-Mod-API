@@ -71,6 +71,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="API\Chat\ChatMessage.cs" />
+    <Compile Include="API\Chat\ChatSession.cs" />
+    <Compile Include="API\Chat\ChatSessionManager.cs" />
     <Compile Include="API\Client\ClientNetworkManager.cs" />
     <Compile Include="API\Common\BlockRegistry.cs" />
     <Compile Include="API\Common\EntityEvents.cs" />
@@ -97,6 +100,9 @@
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\CameraBlockEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\ConveyorBlockEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\ConveyorTubeEntity.cs" />
+    <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\GyroNetworkManager.cs" />
+    <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\LandingGearEntity.cs" />
+    <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\ProductionQueueItem.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\ShipConnectorEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\InteriorTurretEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\DoorEntity.cs" />
@@ -104,7 +110,6 @@
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\GravityBaseEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\GravitySphereEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\GyroEntity.cs" />
-    <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\LandingGearEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\MergeBlockEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\MissileTurretEntity.cs" />
     <Compile Include="API\Entity\Sector\SectorObject\CubeGrid\CubeBlock\OreDetectorEntity.cs" />
@@ -148,29 +153,23 @@
     <Compile Include="API\Entity\Sector\SectorObject\VoxelMap.cs" />
     <Compile Include="API\Common\SandboxGameAssemblyWrapper.cs" />
     <Compile Include="API\Server\ServerAssemblyWrapper.cs" />
+    <Compile Include="AssemblyFileVersion.cs">
+      <DependentUpon>AssemblyFileVersion.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="ChatUserItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Support\ApplicationLog.cs" />
     <Compile Include="Support\EntityException.cs" />
-    <Compile Include="Support\LogManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <HintPath>..\GameLibraries\HavokWrapper.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="Sandbox.Audio, Version=0.1.5410.26916, Culture=neutral, processorArchitecture=AMD64">
+    <Reference Include="NLog, Version=3.2.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\GameLibraries\Sandbox.Audio.dll</HintPath>
+      <HintPath>..\packages\NLog.3.2.0.0\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Sandbox.Common">
       <HintPath>..\GameLibraries\Sandbox.Common.dll</HintPath>
@@ -181,14 +180,11 @@
     <Reference Include="Sandbox.Game">
       <HintPath>..\GameLibraries\Sandbox.Game.dll</HintPath>
     </Reference>
-    <Reference Include="Sandbox.Input, Version=0.1.5305.29171, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\GameLibraries\Sandbox.Input.dll</HintPath>
-    </Reference>
     <Reference Include="SteamSDK">
       <HintPath>..\GameLibraries\SteamSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.XML" />
@@ -201,9 +197,6 @@
     </Reference>
     <Reference Include="VRage.Math">
       <HintPath>..\GameLibraries\VRage.Math.dll</HintPath>
-    </Reference>
-    <Reference Include="VRage.Render">
-      <HintPath>..\GameLibraries\VRage.Render.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -235,9 +228,25 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="AssemblyFileVersion.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AssemblyFileVersion.cs</LastGenOutput>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>set textTemplatingPath="%25CommonProgramFiles(x86)%25\Microsoft Shared\TextTemplating\$(VisualStudioVersion)\texttransform.exe"
+if %25textTemplatingPath%25=="\Microsoft Shared\TextTemplating\$(VisualStudioVersion)\texttransform.exe" set textTemplatingPath="%25CommonProgramFiles%25\Microsoft Shared\TextTemplating\$(VisualStudioVersion)\texttransform.exe"
+%25textTemplatingPath%25 "$(ProjectDir)AssemblyFileVersion.tt"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

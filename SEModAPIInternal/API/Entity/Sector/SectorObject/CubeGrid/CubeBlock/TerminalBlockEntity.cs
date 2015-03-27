@@ -1,16 +1,14 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using System.Text;
-
-using Sandbox.Common.ObjectBuilders;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
-using Sandbox.ModAPI;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using System.Text;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.ModAPI.Ingame;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
 	[DataContract( Name = "TerminalBlockEntityProxy" )]
 	[KnownType( typeof( InventoryEntity ) )]
 	public class TerminalBlockEntity : CubeBlockEntity
@@ -133,21 +131,21 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
 
-		public static void SetCustomName(Sandbox.ModAPI.Ingame.IMyTerminalBlock terminalBlock, string text)
+		public static void SetCustomName( IMyTerminalBlock terminalBlock, string text )
 		{
 			try
 			{
-				StringBuilder newCustomName = new StringBuilder(text);
-				InvokeStaticMethod(terminalBlock.GetType(), TerminalBlockBroadcastCustomNameMethod, new object[] { terminalBlock, newCustomName });
+				StringBuilder newCustomName = new StringBuilder( text );
+				InvokeStaticMethod( terminalBlock.GetType( ), TerminalBlockBroadcastCustomNameMethod, new object[ ] { terminalBlock, newCustomName } );
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLineAndConsole(string.Format("SetCustomName(): {0}", ex.ToString()));				
+				ApplicationLog.BaseLog.Error( string.Format( "SetCustomName(): {0}", ex ) );
 			}
 		}
 
@@ -171,7 +169,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

@@ -1,11 +1,10 @@
-using System;
-using System.Runtime.Serialization;
-
-using SEModAPIInternal.API.Entity;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Common
 {
+	using System;
+	using System.Runtime.Serialization;
+	using SEModAPIInternal.API.Entity;
+	using SEModAPIInternal.Support;
+
 	[DataContract]
 	public class PowerManager
 	{
@@ -51,7 +50,7 @@ namespace SEModAPIInternal.API.Common
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 					return 0;
 				}
 			}
@@ -68,7 +67,7 @@ namespace SEModAPIInternal.API.Common
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 					return 0;
 				}
 			}
@@ -100,29 +99,29 @@ namespace SEModAPIInternal.API.Common
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
 
 		public void RegisterPowerReceiver( Object receiver )
 		{
-			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerRegisterPowerReceiverMethod, new object[ ] { receiver } );
+			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerRegisterPowerReceiverMethod, new[ ] { receiver } );
 		}
 
 		public void UnregisterPowerReceiver( Object receiver )
 		{
-			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerUnregisterPowerReceiverMethod, new object[ ] { receiver } );
+			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerUnregisterPowerReceiverMethod, new[ ] { receiver } );
 		}
 
 		public void RegisterPowerProducer( Object producer )
 		{
-			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerRegisterPowerProducerMethod, new object[ ] { producer } );
+			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerRegisterPowerProducerMethod, new[ ] { producer } );
 		}
 
 		public void UnregisterPowerProducer( Object producer )
 		{
-			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerUnregisterPowerProducerMethod, new object[ ] { producer } );
+			BaseObject.InvokeEntityMethod( m_powerManager, PowerManagerUnregisterPowerProducerMethod, new[ ] { producer } );
 		}
 
 		#endregion "Methods"

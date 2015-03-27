@@ -1,21 +1,28 @@
-using System;
-using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
-using System.ServiceProcess;
-using System.Linq;
-
-using SEModAPI.Support;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
-using SEModAPIExtensions.API;
-
 namespace SEServerExtender
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Configuration;
+	using System.IO;
+	using System.Linq;
+	using System.Reflection;
+	using System.ServiceModel;
+	using System.ServiceProcess;
+	using System.Threading;
+	using System.Windows.Forms;
+	using NLog;
+	using NLog.Targets;
+	using SEModAPI.Support;
+	using SEModAPIExtensions.API;
+	using SEModAPIInternal.API.Chat;
+	using SEModAPIInternal.API.Common;
+
 	public static class Program
 	{
+		private static int _maxChatHistoryMessageAge = 3600;
+		private static int _maxChatHistoryMessageCount = 100;
+		public static readonly Logger ChatLog = LogManager.GetLogger( "ChatLog" );
+		public static readonly Logger BaseLog = LogManager.GetLogger( "BaseLog" );
 		public class WindowsService : ServiceBase
 		{
 			public WindowsService( )
@@ -28,27 +35,35 @@ namespace SEServerExtender
 
 			protected override void OnStart( string[ ] args )
 			{
-				LogManager.APILog.WriteLine( string.Format( "Starting SEServerExtender Service with {0} arguments ...", args.Length ) );
+				BaseLog.Info( "Starting SEServerExtender Service with {0} arguments ...", args.Length );
 
 				Start( args );
 			}
 
 			protected override void OnStop( )
 			{
-				LogManager.APILog.WriteLine( "Stopping SEServerExtender Service..." );
+				BaseLog.Info( "Stopping SEServerExtender Service...." );
 
 				Program.Stop( );
 			}
 		}
 
-		static SEServerExtender _serverExtenderForm;
-		static Server _server;
+		internal static SEServerExtender ServerExtenderForm;
+		internal static Server Server;
+		public static ServiceHost ServerServiceHost;
+		internal static CommandLineArgs CommandLineArgs;
 
 		/// <summary>
 		/// Main entry point of the application
 		/// </summary>
 		static void Main( string[ ] args )
 		{
+			FileTarget baseLogTarget = LogManager.Configuration.FindTargetByName( "BaseLog" ) as FileTarget;
+			if ( baseLogTarget != null )
+			{
+				baseLogTarget.FileName = baseLogTarget.FileName.Render( new LogEventInfo { TimeStamp = DateTime.Now } );
+			}
+
 			if ( !Environment.UserInteractive )
 			{
 				using ( var service = new WindowsService( ) )
@@ -71,27 +86,35 @@ namespace SEServerExtender
 
 			//AppDomain.CurrentDomain.ClearEventInvocations("_unhandledException");
 
-			LogManager.APILog.WriteLine( string.Format( "Starting SEServerExtender with {0} arguments ...", args.Length ) );
+			BaseLog.Info( "Starting SEServerExtender with {0} arguments ...", args.Length );
 
-			CommandLineArgs extenderArgs = new CommandLineArgs
-										   {
-											   AutoStart = false,
-											   WorldName = string.Empty,
-											   InstanceName = string.Empty,
-											   NoGui = false,
-											   NoConsole = false,
-											   Debug = false,
-											   GamePath = string.Empty,
-											   NoWcf = false,
-											   Autosave = 0,
-											   WcfPort = 0,
-											   Path = string.Empty,
-											   CloseOnCrash = false,
-											   RestartOnCrash = false,
-											   Args = string.Join( " ", args.Select( x => string.Format( "\"{0}\"", x ) ) )
-										   };
+			CommandLineArgs extenderArgs = CommandLineArgs = new CommandLineArgs
+							  {
+								  AutoStart = false,
+								  WorldName = string.Empty,
+								  InstanceName = string.Empty,
+								  NoGui = false,
+								  NoConsole = false,
+								  Debug = false,
+								  GamePath = Directory.GetParent( Directory.GetCurrentDirectory( ) ).FullName,
+								  NoWcf = false,
+								  Autosave = 0,
+								  Path = string.Empty,
+								  CloseOnCrash = false,
+								  RestartOnCrash = false,
+								  Args = string.Join( " ", args.Select( x => string.Format( "\"{0}\"", x ) ) )
+							  };
 
-			//Setup the default args
+			if ( ConfigurationManager.AppSettings[ "WCFChatMaxMessageHistoryAge" ] != null )
+				if ( !int.TryParse( ConfigurationManager.AppSettings[ "WCFChatMaxMessageHistoryAge" ], out _maxChatHistoryMessageAge ) )
+				{
+					ConfigurationManager.AppSettings.Add( "WCFChatMaxMessageHistoryAge", "3600" );
+				}
+			if ( ConfigurationManager.AppSettings[ "WCFChatMaxMessageHistoryCount" ] != null )
+				if ( !int.TryParse( ConfigurationManager.AppSettings[ "WCFChatMaxMessageHistoryCount" ], out _maxChatHistoryMessageCount ) )
+				{
+					ConfigurationManager.AppSettings.Add( "WCFChatMaxMessageHistoryCount", "100" );
+				}
 
 			//Process the args
 			foreach ( string arg in args )
@@ -124,17 +147,6 @@ namespace SEServerExtender
 							//Do nothing
 						}
 					}
-					else if ( argName.ToLower( ).Equals( "wcfport" ) )
-					{
-						try
-						{
-							extenderArgs.WcfPort = ushort.Parse( argValue );
-						}
-						catch
-						{
-							//Do nothing
-						}
-					}
 					else if ( argName.ToLower( ).Equals( "path" ) )
 					{
 						if ( argValue[ argValue.Length - 1 ] == '"' )
@@ -153,7 +165,7 @@ namespace SEServerExtender
 						extenderArgs.NoGui = true;
 
 						//Implies autostart
-						extenderArgs.AutoStart = true;
+						//extenderArgs.AutoStart = true;
 					}
 					if ( arg.ToLower( ).Equals( "noconsole" ) )
 					{
@@ -198,9 +210,6 @@ namespace SEServerExtender
 				}
 			}
 
-			if ( extenderArgs.NoWcf )
-				extenderArgs.WcfPort = 0;
-
 			if ( !string.IsNullOrEmpty( extenderArgs.Path ) )
 			{
 				extenderArgs.InstanceName = string.Empty;
@@ -222,18 +231,25 @@ namespace SEServerExtender
 				if ( !unitTestResult )
 					SandboxGameAssemblyWrapper.IsInSafeMode = true;
 
-				_server = Server.Instance;
-				_server.CommandLineArgs = extenderArgs;
-				_server.IsWCFEnabled = !extenderArgs.NoWcf;
-				_server.WCFPort = extenderArgs.WcfPort;
-				_server.Init( );
+				Server = Server.Instance;
+				Server.CommandLineArgs = extenderArgs;
+				Server.IsWCFEnabled = !extenderArgs.NoWcf;
+				Server.Init( );
 
-				ChatManager.ChatCommand guiCommand = new ChatManager.ChatCommand { Command = "gui", Callback = ChatCommand_GUI };
+				ChatManager.ChatCommand guiCommand = new ChatManager.ChatCommand( "gui", ChatCommand_GUI, false );
 				ChatManager.Instance.RegisterChatCommand( guiCommand );
 
 				if ( extenderArgs.AutoStart )
 				{
-					_server.StartServer( );
+					Server.StartServer( );
+				}
+
+				if ( !extenderArgs.NoWcf )
+				{
+					BaseLog.Info( "Opening up WCF service listener" );
+					ServerServiceHost = new ServiceHost( typeof( ServerService.ServerService ) );
+					ServerServiceHost.Open( );
+					ChatManager.Instance.ChatMessage += ChatManager_ChatMessage;
 				}
 
 				if ( !extenderArgs.NoGui )
@@ -248,7 +264,7 @@ namespace SEServerExtender
 			catch ( AutoException eEx )
 			{
 				if ( !extenderArgs.NoConsole )
-					Console.WriteLine( "AutoException - {0}\n\r{1}", eEx.AdditionnalInfo, eEx.GetDebugString( ) );
+					BaseLog.Info( "AutoException - {0}\n\r{1}", eEx.AdditionnalInfo, eEx.GetDebugString( ) );
 				if ( !extenderArgs.NoGui )
 					MessageBox.Show( string.Format( "{0}\n\r{1}", eEx.AdditionnalInfo, eEx.GetDebugString( ) ), @"SEServerExtender", MessageBoxButtons.OK, MessageBoxIcon.Error );
 
@@ -258,7 +274,7 @@ namespace SEServerExtender
 			catch ( TargetInvocationException ex )
 			{
 				if ( !extenderArgs.NoConsole )
-					Console.WriteLine( "TargetInvocationException - {0}\n\r{1}", ex, ex.InnerException );
+					BaseLog.Info( "TargetInvocationException - {0}\n\r{1}", ex, ex.InnerException );
 				if ( !extenderArgs.NoGui )
 					MessageBox.Show( string.Format( "{0}\n\r{1}", ex, ex.InnerException ), @"SEServerExtender", MessageBoxButtons.OK, MessageBoxIcon.Error );
 
@@ -268,7 +284,7 @@ namespace SEServerExtender
 			catch ( Exception ex )
 			{
 				if ( !extenderArgs.NoConsole )
-					Console.WriteLine( "Exception - {0}", ex );
+					BaseLog.Info( "Exception - {0}", ex );
 				if ( !extenderArgs.NoGui )
 					MessageBox.Show( ex.ToString( ), @"SEServerExtender", MessageBoxButtons.OK, MessageBoxIcon.Error );
 
@@ -277,49 +293,48 @@ namespace SEServerExtender
 			}
 		}
 
+		private static void ChatManager_ChatMessage( ulong userId, string playerName, string message )
+		{
+			lock ( ChatSessionManager.SessionsMutex )
+				foreach ( KeyValuePair<Guid, ChatSession> s in ChatSessionManager.Instance.Sessions )
+				{
+					s.Value.Messages.Add( new ChatMessage
+										 {
+											 Message = message,
+											 Timestamp = DateTimeOffset.Now,
+											 User = playerName,
+											 UserId = userId
+										 } );
+					if ( s.Value.Messages.Count > _maxChatHistoryMessageCount )
+						s.Value.Messages.RemoveAt( 0 );
+					while ( s.Value.Messages.Any( ) && ( DateTimeOffset.Now - s.Value.Messages[ 0 ].Timestamp ).TotalSeconds > _maxChatHistoryMessageAge )
+						s.Value.Messages.RemoveAt( 0 );
+				}
+		}
+
 		private static void Stop( )
 		{
-			if ( _server != null && _server.IsRunning )
-				_server.StopServer( );
-			if ( _serverExtenderForm != null && _serverExtenderForm.Visible )
-				_serverExtenderForm.Close( );
+			if ( Server != null && Server.IsRunning )
+				Server.StopServer( );
+			if ( ServerExtenderForm != null && ServerExtenderForm.Visible )
+				ServerExtenderForm.Close( );
 
-			if ( _server.ServerThread != null )
+			if ( Server.ServerThread != null )
 			{
-				_server.ServerThread.Join( 20000 );
+				Server.ServerThread.Join( 20000 );
 			}
+			if ( ServerServiceHost != null )
+				ServerServiceHost.Close( );
 		}
 
 		public static void Application_ThreadException( Object sender, ThreadExceptionEventArgs e )
 		{
-			Console.WriteLine( "Application.ThreadException - {0}", e.Exception );
-
-			if ( LogManager.APILog != null && LogManager.APILog.LogEnabled )
-			{
-				LogManager.APILog.WriteLine( "Application.ThreadException" );
-				LogManager.APILog.WriteLine( e.Exception );
-			}
-			if ( LogManager.ErrorLog != null && LogManager.ErrorLog.LogEnabled )
-			{
-				LogManager.ErrorLog.WriteLine( "Application.ThreadException" );
-				LogManager.ErrorLog.WriteLine( e.Exception );
-			}
+			BaseLog.Error( "Application Thread Exception", e.Exception );
 		}
 
 		public static void AppDomain_UnhandledException( Object sender, UnhandledExceptionEventArgs e )
 		{
-			Console.WriteLine( "AppDomain.UnhandledException - {0}", e.ExceptionObject );
-
-			if ( LogManager.APILog != null && LogManager.APILog.LogEnabled )
-			{
-				LogManager.APILog.WriteLine( "AppDomain.UnhandledException" );
-				LogManager.APILog.WriteLine( (Exception)e.ExceptionObject );
-			}
-			if ( LogManager.ErrorLog != null && LogManager.ErrorLog.LogEnabled )
-			{
-				LogManager.ErrorLog.WriteLine( "AppDomain.UnhandledException" );
-				LogManager.ErrorLog.WriteLine( (Exception)e.ExceptionObject );
-			}
+			BaseLog.Error( "AppDomain.UnhandledException - {0}", e.ExceptionObject );
 		}
 
 		static void ChatCommand_GUI( ChatManager.ChatEvent chatEvent )
@@ -337,12 +352,12 @@ namespace SEServerExtender
 
 			Application.EnableVisualStyles( );
 			Application.SetCompatibleTextRenderingDefault( false );
-			if ( _serverExtenderForm == null || _serverExtenderForm.IsDisposed )
-				_serverExtenderForm = new SEServerExtender( _server );
-			else if ( _serverExtenderForm.Visible )
+			if ( ServerExtenderForm == null || ServerExtenderForm.IsDisposed )
+				ServerExtenderForm = new SEServerExtender( Server );
+			else if ( ServerExtenderForm.Visible )
 				return;
 
-			Application.Run( _serverExtenderForm );
+			Application.Run( ServerExtenderForm );
 		}
 	}
 }

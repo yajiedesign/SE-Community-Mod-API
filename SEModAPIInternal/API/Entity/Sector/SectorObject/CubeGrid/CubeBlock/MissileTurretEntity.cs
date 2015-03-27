@@ -1,10 +1,10 @@
-using System;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "MissileTurretEntityProxy" )]
+	using System;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+
+	[DataContract]
 	public class MissileTurretEntity : TurretBaseEntity
 	{
 		#region "Attributes"

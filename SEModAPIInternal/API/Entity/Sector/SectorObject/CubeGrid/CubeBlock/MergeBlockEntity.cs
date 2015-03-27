@@ -1,14 +1,13 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "MergeBlockEntityProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+
+	[DataContract]
 	public class MergeBlockEntity : FunctionalBlockEntity
 	{
 		#region "Attributes"
@@ -79,7 +78,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 					Object connectedMergeBlock = GetConnectedBlock( );
 					if ( connectedMergeBlock != null )
 					{
-						Object backingGrid = CubeBlockEntity.GetInternalParentCubeGrid( connectedMergeBlock );
+						Object backingGrid = GetInternalParentCubeGrid( connectedMergeBlock );
 						long entityId = BaseEntity.GetEntityId( backingGrid );
 						BaseObject matchedObject = GameEntityManager.GetEntity( entityId );
 						if ( matchedObject is CubeGridEntity )
@@ -90,7 +89,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 				}
 				catch ( Exception ex )
 				{
-					LogManager.ErrorLog.WriteLine( ex );
+					ApplicationLog.BaseLog.Error( ex );
 				}
 				return attachedGrid;
 			}
@@ -138,7 +137,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}

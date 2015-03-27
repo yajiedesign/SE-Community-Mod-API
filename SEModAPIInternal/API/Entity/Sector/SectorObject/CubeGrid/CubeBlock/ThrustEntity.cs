@@ -1,19 +1,16 @@
-using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-
-using SEModAPI.API;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
-using VRageMath;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "ThrustEntityProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Reflection;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPI.API.TypeConverters;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+	using VRageMath;
+
+	[DataContract]
 	public class ThrustEntity : FunctionalBlockEntity
 	{
 		#region "Attributes"
@@ -151,7 +148,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -169,7 +166,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -247,7 +244,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}

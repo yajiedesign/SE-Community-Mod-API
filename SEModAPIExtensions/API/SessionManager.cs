@@ -1,13 +1,11 @@
-using System;
-using System.IO;
-
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
-
-using SEModAPIInternal.Support;
-
 namespace SEModAPIExtensions.API
 {
+	using System;
+	using System.IO;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.Serializer;
+	using SEModAPIInternal.Support;
+
 	public class SessionManager
 	{
 		private static MyObjectBuilder_Checkpoint m_checkPoint;
@@ -53,7 +51,7 @@ namespace SEModAPIExtensions.API
 		{
 			MyConfigDedicatedData config = Server.Instance.LoadServerConfig();
 
-			Console.WriteLine("Loading Session Settings");
+			ApplicationLog.BaseLog.Info( "Loading Session Settings" );
 			try
 			{
 				string worldPath = config.LoadWorld;
@@ -75,15 +73,15 @@ namespace SEModAPIExtensions.API
 
 				SaveSandbox(m_checkPoint, worldPath, out fileSize);
 
-				Console.WriteLine( "{0}Max Players: {1}", Environment.NewLine, m_checkPoint.Settings.MaxPlayers );
-				Console.WriteLine( "OnlineMode: {0}", m_checkPoint.Settings.OnlineMode );
-				Console.WriteLine( "GameMode: {0}", m_checkPoint.Settings.GameMode );
-				Console.WriteLine( "Scenario: {0}", m_checkPoint.Scenario.SubtypeId );
-				Console.WriteLine( "World Size: {0}{1}", m_checkPoint.Settings.WorldSizeKm, Environment.NewLine );
+				ApplicationLog.BaseLog.Info( "{0}Max Players: {1}", Environment.NewLine, m_checkPoint.Settings.MaxPlayers );
+				ApplicationLog.BaseLog.Info( "OnlineMode: {0}", m_checkPoint.Settings.OnlineMode );
+				ApplicationLog.BaseLog.Info( "GameMode: {0}", m_checkPoint.Settings.GameMode );
+				ApplicationLog.BaseLog.Info( "Scenario: {0}", m_checkPoint.Scenario.SubtypeId );
+				ApplicationLog.BaseLog.Info( "World Size: {0}{1}", m_checkPoint.Settings.WorldSizeKm, Environment.NewLine );
 			}
 			catch (Exception ex)
 			{
-				LogManager.ErrorLog.WriteLineAndConsole( string.Format( "Session Manager Exception: {0}", ex ) );
+				ApplicationLog.BaseLog.Error( "Session Manager Exception: {0}", ex );
 			}
 		}
 	}

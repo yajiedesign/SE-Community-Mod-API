@@ -2,14 +2,14 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 {
 	using System;
 	using System.Collections.Generic;
+	using Sandbox.Common.ObjectBuilders;
 	using Sandbox.Definitions;
+	using Sandbox.ModAPI;
 	using SEModAPIInternal.API.Common;
 	using SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid;
 	using SEModAPIInternal.Support;
 	using VRage;
 	using VRageMath;
-	using Sandbox.ModAPI;
-	using Sandbox.Common.ObjectBuilders;
 
 	public class CubeGridNetworkManager
 	{
@@ -141,7 +141,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -150,11 +150,11 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 		{
 			try
 			{
-				BaseObject.InvokeEntityMethod( m_netManager, CubeGridNetManagerBroadcastCubeBlockFactionDataMethod, new object[ ] { m_cubeGrid.BackingObject, cubeBlock.ActualObject, cubeBlock.Owner, cubeBlock.ShareMode } );
+				BaseObject.InvokeEntityMethod( m_netManager, CubeGridNetManagerBroadcastCubeBlockFactionDataMethod, new[ ] { m_cubeGrid.BackingObject, cubeBlock.ActualObject, cubeBlock.Owner, cubeBlock.ShareMode } );
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -172,7 +172,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch (Exception ex)
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error(ex);
 			}
 		}
 
@@ -192,7 +192,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch (Exception ex)
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error(ex);
 			}
 		}
 
@@ -203,11 +203,11 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 				Type someEnum = CubeGridEntity.InternalType.GetNestedType( CubeGridIntegrityChangeEnumClass );
 				Array someEnumValues = someEnum.GetEnumValues( );
 				Object enumValue = someEnumValues.GetValue( 0 );
-				BaseObject.InvokeEntityMethod( m_netManager, CubeGridNetManagerBroadcastCubeBlockBuildIntegrityValuesMethod, new object[ ] { cubeBlock.BackingObject, enumValue, 0L } );
+				BaseObject.InvokeEntityMethod( m_netManager, CubeGridNetManagerBroadcastCubeBlockBuildIntegrityValuesMethod, new[ ] { cubeBlock.BackingObject, enumValue, 0L } );
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -259,7 +259,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -289,7 +289,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -302,7 +302,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -315,7 +315,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

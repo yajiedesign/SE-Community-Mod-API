@@ -1,21 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.Serialization;
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using Sandbox.Definitions;
-using SEModAPI.API;
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.API.Utility;
-using SEModAPIInternal.Support;
-using VRageMath;
-using Sandbox.ModAPI;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 {
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel;
+	using System.IO;
+	using System.Runtime.Serialization;
+	using Microsoft.Xml.Serialization.GeneratedAssembly;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.VRageData;
+	using Sandbox.Definitions;
+	using Sandbox.ModAPI;
+	using SEModAPI.API.TypeConverters;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.API.Utility;
+	using SEModAPIInternal.Support;
+	using VRageMath;
+
 	[DataContract( Name = "CubeBlockEntityProxy" )]
 	[KnownType( "KnownTypes" )]
 	public class CubeBlockEntity : BaseObject
@@ -486,27 +486,27 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 
 		#region "Methods"
 
-		public static void SetBuildPercent(IMySlimBlock block, float percent)
+		public static void SetBuildPercent( IMySlimBlock block, float percent )
 		{
 			try
 			{
 				// Set locally
-				object constructionManager = GetEntityFieldValue(block, CubeBlockConstructionManagerField);
-				float maxIntegrity = (float)InvokeEntityMethod(constructionManager, ConstructionManagerGetMaxIntegrityMethod);
+				object constructionManager = GetEntityFieldValue( block, CubeBlockConstructionManagerField );
+				float maxIntegrity = (float)InvokeEntityMethod( constructionManager, ConstructionManagerGetMaxIntegrityMethod );
 				float integrity = percent * maxIntegrity;
 				float build = percent * maxIntegrity;
-				InvokeEntityMethod(constructionManager, ConstructionManagerSetIntegrityBuildValuesMethod, new object[] { build, integrity });
+				InvokeEntityMethod( constructionManager, ConstructionManagerSetIntegrityBuildValuesMethod, new object[ ] { build, integrity } );
 
 				// Broadcast to players
-				Type someEnum = CubeGridEntity.InternalType.GetNestedType(CubeGridNetworkManager.CubeGridIntegrityChangeEnumClass);
-				Array someEnumValues = someEnum.GetEnumValues();
-				object enumValue = someEnumValues.GetValue(0);
-				object netManager = BaseObject.InvokeEntityMethod(block.CubeGrid, CubeGridNetworkManager.CubeGridGetNetManagerMethod);
-				BaseObject.InvokeEntityMethod(netManager, CubeGridNetworkManager.CubeGridNetManagerBroadcastCubeBlockBuildIntegrityValuesMethod, new object[] { block, enumValue, 0L });
+				Type someEnum = CubeGridEntity.InternalType.GetNestedType( CubeGridNetworkManager.CubeGridIntegrityChangeEnumClass );
+				Array someEnumValues = someEnum.GetEnumValues( );
+				object enumValue = someEnumValues.GetValue( 0 );
+				object netManager = InvokeEntityMethod( block.CubeGrid, CubeGridNetworkManager.CubeGridGetNetManagerMethod );
+				InvokeEntityMethod( netManager, CubeGridNetworkManager.CubeGridNetManagerBroadcastCubeBlockBuildIntegrityValuesMethod, new object[ ] { block, enumValue, 0L } );
 			}
-			catch (Exception ex)
+			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLineAndConsole(string.Format("SetBuildPercent(): {0}", ex.ToString()));
+				ApplicationLog.BaseLog.Error( string.Format( "SetBuildPercent(): {0}", ex.ToString( ) ) );
 			}
 
 		}
@@ -523,7 +523,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch (Exception ex)
 			{
-				LogManager.ErrorLog.WriteLine(ex);
+				ApplicationLog.BaseLog.Error(ex);
 			}
 		}
 		*/
@@ -538,7 +538,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -627,7 +627,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.APILog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -651,7 +651,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return new Matrix( );
 			}
 		}
@@ -667,7 +667,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -682,7 +682,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -699,7 +699,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return null;
 			}
 		}
@@ -753,7 +753,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -773,7 +773,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 
@@ -786,7 +786,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return 1;
 			}
 		}
@@ -800,7 +800,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return 1;
 			}
 		}
@@ -819,13 +819,23 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return 0f;
 			}
 		}
 
 		#endregion "Internal"
 
+		/// <summary>
+		/// Repairs this <see cref="CubeBlockEntity"/> (sets <see cref="BuildPercent"/> and <see cref="IntegrityPercent"/> to 1)
+		/// </summary>
+		public void Repair( )
+		{
+			if ( IntegrityPercent < 1f )
+				IntegrityPercent = 1;
+			if ( BuildPercent < 1f )
+				BuildPercent = 1;
+		}
 		#endregion "Methods"
 	}
 
@@ -890,7 +900,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -948,7 +958,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 					}
 					catch ( Exception ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
@@ -962,7 +972,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 					}
 					catch ( Exception ex )
 					{
-						LogManager.ErrorLog.WriteLine( ex );
+						ApplicationLog.BaseLog.Error( ex );
 					}
 				}
 
@@ -981,7 +991,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

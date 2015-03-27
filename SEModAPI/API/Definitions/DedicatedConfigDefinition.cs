@@ -1,35 +1,27 @@
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Xml;
-
-using Sandbox.Common.ObjectBuilders;
-using System.Linq;
-
 namespace SEModAPI.API.Definitions
 {
+	using System;
 	using System.Collections.Generic;
+	using System.ComponentModel;
+	using System.Configuration;
+	using System.Drawing.Design;
+	using System.IO;
+	using System.Linq;
+	using System.Runtime.Serialization;
+	using System.Windows.Forms.Design;
+	using System.Xml;
+	using Microsoft.Xml.Serialization.GeneratedAssembly;
+	using Sandbox.Common.ObjectBuilders;
 
 	[DataContract]
 	public class DedicatedConfigDefinition
 	{
-		#region "Attributes"
-
 		private readonly MyConfigDedicatedData _definition;
-
-		#endregion
-
-		#region "Constructors and Initializers"
 
 		public DedicatedConfigDefinition( MyConfigDedicatedData definition )
 		{
 			_definition = definition;
 		}
-
-		#endregion
 
 		#region "Properties"
 
@@ -687,7 +679,7 @@ namespace SEModAPI.API.Definitions
 		[Browsable( true )]
 		[ReadOnly( false )]
 		[Description( "Get or set the path of the world to load" )]
-		[EditorAttribute( typeof( System.Windows.Forms.Design.FolderNameEditor ), typeof( System.Drawing.Design.UITypeEditor ) )]
+		[Editor( typeof( FolderNameEditor ), typeof( UITypeEditor ) )]
 		[Category( "World Settings" )]
 		public string LoadWorld
 		{
@@ -894,24 +886,23 @@ namespace SEModAPI.API.Definitions
 			}
 		}
 
-        [DataMember]
-		[Browsable(true)]
-		[ReadOnly(false)]
-        [Description("Get or set DestructibleBlocks")]
-		[Category("World Settings")]
 		/// <summary>
-		/// Get or set if the last session should be ignored
+		/// Get or set the whether oxygen mechanics are in use.
 		/// </summary>
-        public bool DestructibleBlocks
+		[DataMember]
+		[Browsable( true )]
+		[ReadOnly( false )]
+		[Description( "Get or set the whether oxygen mechanics are in use." )]
+		[Category( "World Settings" )]
+		public bool EnableOxygen
 		{
-            get { return _definition.SessionSettings.DestructibleBlocks; }
+			get { return _definition.SessionSettings.EnableOxygen; }
 			set
 			{
-                if (_definition.SessionSettings.DestructibleBlocks == value) return;
-                _definition.SessionSettings.DestructibleBlocks = value;
+				if ( _definition.SessionSettings.EnableOxygen != value )
+					_definition.SessionSettings.EnableOxygen = value;
 			}
 		}
-
 
 		#endregion
 
@@ -921,7 +912,9 @@ namespace SEModAPI.API.Definitions
 		/// Load the dedicated server configuration file
 		/// </summary>
 		/// <param name="fileInfo">Path to the configuration file</param>
+		/// <exception cref="FileNotFoundException">Thrown if configuration file cannot be found at the path specified.</exception>
 		/// <returns></returns>
+		/// <exception cref="ConfigurationErrorsException">Configuration file not understood. See inner exception for details. Ignore configuration file line number in outer exception.</exception>
 		public static MyConfigDedicatedData Load( FileInfo fileInfo )
 		{
 			object fileContent;
@@ -930,7 +923,7 @@ namespace SEModAPI.API.Definitions
 
 			if ( !File.Exists( filePath ) )
 			{
-				throw new GameInstallationInfoException( GameInstallationInfoExceptionState.ConfigFileMissing, filePath );
+				throw new FileNotFoundException( "Game configuration file not found.", filePath );
 			}
 
 			try
@@ -947,14 +940,14 @@ namespace SEModAPI.API.Definitions
 					fileContent = serializer.Deserialize( xmlReader );
 				}
 			}
-			catch
+			catch(Exception ex)
 			{
-				throw new GameInstallationInfoException( GameInstallationInfoExceptionState.ConfigFileCorrupted, filePath );
+				throw new ConfigurationErrorsException( "Configuration file not understood. See inner exception for details. Ignore configuration file line number in outer exception.", ex, filePath, -1 );
 			}
 
 			if ( fileContent == null )
 			{
-				throw new GameInstallationInfoException( GameInstallationInfoExceptionState.ConfigFileEmpty, filePath );
+				throw new ConfigurationErrorsException( "Configuration file empty." );
 			}
 
 			return (MyConfigDedicatedData)fileContent;

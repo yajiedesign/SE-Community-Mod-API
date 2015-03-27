@@ -1,19 +1,16 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.VRageData;
-
-using SEModAPI.API;
-
-using SEModAPIInternal.API.Common;
-using SEModAPIInternal.Support;
-
-using VRageMath;
-
 namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 {
-	[DataContract( Name = "GravityGeneratorEntityProxy" )]
+	using System;
+	using System.ComponentModel;
+	using System.Runtime.Serialization;
+	using Sandbox.Common.ObjectBuilders;
+	using Sandbox.Common.ObjectBuilders.VRageData;
+	using SEModAPI.API.TypeConverters;
+	using SEModAPIInternal.API.Common;
+	using SEModAPIInternal.Support;
+	using VRageMath;
+
+	[DataContract]
 	public class GravityGeneratorEntity : GravityBaseEntity
 	{
 		#region "Attributes"
@@ -98,7 +95,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				Console.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 				return false;
 			}
 		}
@@ -111,7 +108,7 @@ namespace SEModAPIInternal.API.Entity.Sector.SectorObject.CubeGrid.CubeBlock
 			}
 			catch ( Exception ex )
 			{
-				LogManager.ErrorLog.WriteLine( ex );
+				ApplicationLog.BaseLog.Error( ex );
 			}
 		}
 

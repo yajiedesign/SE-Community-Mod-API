@@ -1,7 +1,7 @@
-using Sandbox.Common.ObjectBuilders.Definitions;
-
 namespace SEModAPI.API.Definitions.CubeBlocks
 {
+	using Sandbox.Common.ObjectBuilders.Definitions;
+
 	public class CubeBlockDef : BlockDefinition
 	{
 		#region "Constructors and Initializers"
@@ -52,10 +52,10 @@ namespace SEModAPI.API.Definitions.CubeBlocks
         }
 
 	    /// <summary>
-        /// Get or Set the current CubeBlock DisassembleRatio
-        /// The value is a multiplyer of BuildTime
-        /// [Disassemble time] = BuildTime * DisassembleRatio
-        /// </summary>
+	    /// Get or Set the current CubeBlock <see cref="DisassembleRatio"/> The
+	    /// value multiplierplyer of <see cref="BuildTime"/> [Disassemble time] =
+	    /// <see cref="BuildTime"/> * <see cref="DisassembleRatio"/>
+	    /// </summary>
         public float DisassembleRatio
         {
             get { return m_baseDefinition.DisassembleRatio; }

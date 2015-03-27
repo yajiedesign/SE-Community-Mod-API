@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using Sandbox.Common.ObjectBuilders;
-using SEModAPIInternal.API.Entity;
-
 namespace SEModAPIInternal.API.Common
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Reflection;
+	using System.Runtime.InteropServices;
+	using Sandbox.Common.ObjectBuilders;
+	using SEModAPIInternal.API.Entity;
+
 	public struct GameObjectTypeEntry
 	{
 		public Guid source;
@@ -57,13 +57,7 @@ namespace SEModAPIInternal.API.Common
 
 		public static GameObjectRegistry Instance
 		{
-			get
-			{
-				if ( m_instance == null )
-					m_instance = new GameObjectRegistry( );
-
-				return m_instance;
-			}
+			get { return m_instance ?? ( m_instance = new GameObjectRegistry( ) ); }
 		}
 
 		public Dictionary<Type, Type> TypeMap
